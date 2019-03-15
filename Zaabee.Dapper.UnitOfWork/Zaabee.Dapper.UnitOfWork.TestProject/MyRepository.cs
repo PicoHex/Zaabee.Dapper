@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
+using Zaabee.Dapper.UnitOfWork.Abstractions;
 
 namespace Zaabee.Dapper.UnitOfWork.TestProject
 {
     public class MyRepository
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IZaabeeUnitOfWork _unitOfWork;
 
-        public MyRepository(IUnitOfWork unitOfWork)
+        public MyRepository(IZaabeeUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

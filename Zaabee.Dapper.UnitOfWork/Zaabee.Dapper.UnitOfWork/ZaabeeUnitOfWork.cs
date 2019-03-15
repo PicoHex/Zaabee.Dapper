@@ -1,25 +1,26 @@
 using System;
 using System.Data;
+using Zaabee.Dapper.UnitOfWork.Abstractions;
 
 namespace Zaabee.Dapper.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class ZaabeeUnitOfWork : IZaabeeUnitOfWork
     {
         private readonly IDbConnection _connection;
         private IDbTransaction _transaction;
         private readonly Guid _id;
 
-        internal UnitOfWork(IDbConnection connection)
+        internal ZaabeeUnitOfWork(IDbConnection connection)
         {
             _id = Guid.NewGuid();
             _connection = connection;
         }
 
-        IDbConnection IUnitOfWork.Connection => _connection;
+        IDbConnection IZaabeeUnitOfWork.Connection => _connection;
 
-        IDbTransaction IUnitOfWork.Transaction => _transaction;
+        IDbTransaction IZaabeeUnitOfWork.Transaction => _transaction;
 
-        Guid IUnitOfWork.Id => _id;
+        Guid IZaabeeUnitOfWork.Id => _id;
 
         public void Begin()
         {

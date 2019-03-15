@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 
-namespace Zaabee.Dapper.UnitOfWork
+namespace Zaabee.Dapper.UnitOfWork.Abstractions
 {
-    public interface IUnitOfWork
+    public interface IZaabeeUnitOfWork : IDisposable
     {
         Guid Id { get; }
         IDbConnection Connection { get; }

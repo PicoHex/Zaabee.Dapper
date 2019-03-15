@@ -1,20 +1,20 @@
-using System;
 using System.Data;
+using Zaabee.Dapper.UnitOfWork.Abstractions;
 
 namespace Zaabee.Dapper.UnitOfWork
 {
-    public class DalSession : IDisposable
+    public class ZaabeeDbContext : IZaabeeDbContext
     {
         private readonly IDbConnection _connection;
 
-        public DalSession(IDbConnection dbConnection)
+        public IZaabeeUnitOfWork UnitOfWork { get; }
+
+        public ZaabeeDbContext(IDbConnection dbConnection)
         {
             _connection = dbConnection;
             _connection.Open();
-            UnitOfWork = new UnitOfWork(_connection);
+            UnitOfWork = new ZaabeeUnitOfWork(_connection);
         }
-
-        public UnitOfWork UnitOfWork { get; }
 
         public void Dispose()
         {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using Xunit;
 using Zaabee.SequentialGuid;
@@ -15,9 +14,9 @@ namespace Zaabee.Dapper.UnitOfWork.TestProject
         [Fact]
         public void Test1()
         {
-            using (var dalSession = new DalSession(GetPgConn()))
+            using (var dbContext = new ZaabeeDbContext(GetPgConn()))
             {
-                var unitOfWork = dalSession.UnitOfWork;
+                var unitOfWork = dbContext.UnitOfWork;
                 unitOfWork.Begin();
                 try
                 {
@@ -40,91 +39,14 @@ namespace Zaabee.Dapper.UnitOfWork.TestProject
         [Fact]
         public void Test2()
         {
-            using (var dalSession = new DalSession(GetMySqlConn()))
+            using (var dbContext = new ZaabeeDbContext(GetMySqlConn()))
             {
                 var myDomainObject= CreateDomainObject();
                 //Your database code here
                 //UoW have no effect here as Begin() is not called.
-                var myRepository = new MyRepository(dalSession.UnitOfWork);
+                var myRepository = new MyRepository(dbContext.UnitOfWork);
                 myRepository.Insert(myDomainObject);
             }
-        }
-
-        public void Test3()
-        {
-            var results = new Dictionary<string, Dictionary<string, List<long>>>();
-
-            for (var i = 0; i < 5; i++)
-            {
-                for (var guidType = 0; guidType < 4; guidType++)
-                {
-                    for (var dbType = 0; dbType < 3; dbType++)
-                    {
-                        using (var dalSession =
-                            new DalSession(dbType == 0 ? GetMsSqlConn() : dbType == 1 ? GetMySqlConn() : GetPgConn()))
-                        {
-                            var unitOfWork = dalSession.UnitOfWork;
-                            unitOfWork.Begin();
-                            try
-                            {
-                                var domainObjects = CreateDomainObjects(10000,
-                                    guidType == 3 ? null : (SequentialGuidHelper.SequentialGuidType?) guidType);
-
-                                var myRepository = new MyRepository(unitOfWork);
-
-                                var sw = Stopwatch.StartNew();
-                                myRepository.Insert(domainObjects);
-                                unitOfWork.Commit();
-                                sw.Stop();
-                                AddResult(results,
-                                    guidType == 3 ? "原生GUID" : ((SequentialGuidHelper.SequentialGuidType?) guidType).ToString(),
-                                    dbType == 0 ? "MsSql" : dbType == 1 ? "MySql" : "PgSql",
-                                    sw.ElapsedMilliseconds);
-                            }
-                            catch
-                            {
-                                unitOfWork.Rollback();
-                                throw;
-                            }
-                        }
-
-                        using (var dalSession =
-                            new DalSession(dbType == 0 ? GetMsSqlConn() : dbType == 1 ? GetMySqlConn() : GetPgConn()))
-                        {
-                            var unitOfWork = dalSession.UnitOfWork;
-                            unitOfWork.Begin();
-                            try
-                            {
-                                var myRepository = new MyRepository(unitOfWork);
-                                myRepository.DeleteAll();
-                                unitOfWork.Commit();
-                            }
-                            catch
-                            {
-                                unitOfWork.Rollback();
-                                throw;
-                            } 
-                        }
-                    }
-                }
-            }
-        }
-
-        private void AddResult(
-            Dictionary<string, Dictionary<string, List<long>>> results,
-            string guidType,
-            string dbType,
-            long elapsedMilliseconds)
-        {
-            results = results ??
-                      new Dictionary<string, Dictionary<string, List<long>>>();
-            if (!results.ContainsKey(guidType))
-                results.Add(guidType, new Dictionary<string, List<long>>());
-            var r1 = results[guidType];
-            if (!r1.ContainsKey(dbType))
-                r1.Add(dbType, new List<long>());
-            var r2 = r1[dbType];
-            r2.Add(elapsedMilliseconds);
         }
 
         private IDbConnection GetPgConn()
