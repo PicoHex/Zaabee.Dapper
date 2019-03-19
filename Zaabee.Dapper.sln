@@ -12,6 +12,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.UnitOfWork.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.UnitOfWork.Abstractions", "Zaabee.Dapper.UnitOfWork\Zaabee.Dapper.UnitOfWork.Abstractions\Zaabee.Dapper.UnitOfWork.Abstractions.csproj", "{81CF4931-B4D0-4B77-8EDB-5A9CDA6C8CEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Repository.Abstractions", "Zaabee.Dapper.Repository\Zaabee.Dapper.Repository.Abstractions\Zaabee.Dapper.Repository.Abstractions.csproj", "{41D6B96C-A2E2-4869-A558-CE29FB3B0536}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Zaabee.Dapper.Extensions", "Zaabee.Dapper.Extensions", "{B9EB596D-C2A9-4174-908D-BE648BFD9AEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions", "Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj", "{DE989508-7E7D-45A7-8B9D-3BEF95677D18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions.TestProject", "Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.TestProject\Zaabee.Dapper.Extensions.TestProject.csproj", "{B0CA6D01-1143-4F74-A74B-2072C6FFAA67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +30,9 @@ Global
 		{0380D158-D1D5-4927-A6A7-F6041D7FCED2} = {D7549530-9254-4214-AF09-9E49FE29CF2C}
 		{B7ADBF7D-18AE-4C9C-8F8A-DB8D625F6502} = {3C4B07AF-9FF6-4447-8D7F-5F1ECC93085D}
 		{81CF4931-B4D0-4B77-8EDB-5A9CDA6C8CEA} = {3C4B07AF-9FF6-4447-8D7F-5F1ECC93085D}
+		{41D6B96C-A2E2-4869-A558-CE29FB3B0536} = {D7549530-9254-4214-AF09-9E49FE29CF2C}
+		{DE989508-7E7D-45A7-8B9D-3BEF95677D18} = {B9EB596D-C2A9-4174-908D-BE648BFD9AEE}
+		{B0CA6D01-1143-4F74-A74B-2072C6FFAA67} = {B9EB596D-C2A9-4174-908D-BE648BFD9AEE}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AA8A0FDB-5451-4B00-8381-07BCF11E0523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -40,5 +51,17 @@ Global
 		{81CF4931-B4D0-4B77-8EDB-5A9CDA6C8CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81CF4931-B4D0-4B77-8EDB-5A9CDA6C8CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81CF4931-B4D0-4B77-8EDB-5A9CDA6C8CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0CA6D01-1143-4F74-A74B-2072C6FFAA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0CA6D01-1143-4F74-A74B-2072C6FFAA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0CA6D01-1143-4F74-A74B-2072C6FFAA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0CA6D01-1143-4F74-A74B-2072C6FFAA67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
