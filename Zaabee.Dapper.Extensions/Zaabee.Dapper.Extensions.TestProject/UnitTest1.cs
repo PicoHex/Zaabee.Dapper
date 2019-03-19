@@ -53,36 +53,6 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-        [Fact]
-        public void RemoveAllByIds()
-        {
-            int result;
-            List<MyDomainObject> entities;
-            using (var conn = GetConn())
-            {
-                entities = CreateDomainObjects(10);
-                conn.AddRange(entities);
-                result = conn.RemoveAll<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
-            }
-
-            Assert.Equal(entities.Count, result);
-        }
-
-        [Fact]
-        public void RemoveAllByEntities()
-        {
-            int result;
-            List<MyDomainObject> entities;
-            using (var conn = GetConn())
-            {
-                entities = CreateDomainObjects(10);
-                conn.AddRange(entities);
-                result = conn.RemoveAll(entities);
-            }
-
-            Assert.Equal(entities.Count, result);
-        }
-
 //        [Fact]
 //        public void RemoveAll()
 //        {

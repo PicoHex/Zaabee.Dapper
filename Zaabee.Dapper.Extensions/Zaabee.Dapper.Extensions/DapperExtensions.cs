@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -63,25 +62,6 @@ namespace Zaabee.Dapper.Extensions
                 transaction, commandTimeout, commandType);
         }
 
-        public static int RemoveAll<T>(this IDbConnection connection, List<T> persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var ids = persistentObjects.Select(GetIdValue).ToList();
-            return connection.Execute(GetDeleteSql(typeof(T), ConditionType.Multi), new {Ids = ids},
-                transaction,
-                commandTimeout,
-                commandType);
-        }
-
-        public static int RemoveAll<T>(this IDbConnection connection, object ids,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return connection.Execute(GetDeleteSql(typeof(T), ConditionType.Multi), new {Ids = ids as IEnumerable},
-                transaction,
-                commandTimeout,
-                commandType);
-        }
-
         public static int RemoveAll<T>(this IDbConnection connection,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
@@ -131,14 +111,6 @@ namespace Zaabee.Dapper.Extensions
                 commandTimeout, commandType);
         }
 
-        public static IEnumerable<T> Query<T>(this IDbConnection connection, List<object> ids,
-            IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            return connection.Query<T>(GetSelectSql(typeof(T), ConditionType.Multi), ids, transaction, buffered,
-                commandTimeout, commandType);
-        }
-
         public static IEnumerable<T> Query<T>(this IDbConnection connection,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
@@ -182,20 +154,6 @@ namespace Zaabee.Dapper.Extensions
                 GetDeleteSql(typeof(T), ConditionType.Single),
                 new {Id = id},
                 transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, List<T> persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), ConditionType.Multi),
-                new {Ids = persistentObjects.Select(GetIdValue)}, transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, List<object> ids,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), ConditionType.Multi),
-                new {Ids = ids}, transaction, commandTimeout, commandType);
         }
 
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection,
@@ -248,14 +206,6 @@ namespace Zaabee.Dapper.Extensions
                 transaction, commandTimeout, commandType);
         }
 
-        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, List<object> ids,
-            IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            return await connection.QueryAsync<T>(GetSelectSql(typeof(T), ConditionType.Multi), ids, transaction,
-                commandTimeout, commandType);
-        }
-
         public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
@@ -293,7 +243,6 @@ namespace Zaabee.Dapper.Extensions
             var sqls = DeleteSqlDict.GetOrAdd(type, key => new Dictionary<ConditionType, string>
             {
                 {ConditionType.Single, $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"},
-                {ConditionType.Multi, $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"},
                 {ConditionType.All, $"DELETE FROM {typeMapInfo.TableName}"}
             });
 
@@ -325,10 +274,6 @@ namespace Zaabee.Dapper.Extensions
                 {
                     ConditionType.Single,
                     $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
-                },
-                {
-                    ConditionType.Multi,
-                    $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
                 },
                 {ConditionType.All, $"SELECT {selectString} FROM {typeMapInfo.TableName}"}
             });
