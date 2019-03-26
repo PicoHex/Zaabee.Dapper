@@ -1,8 +1,9 @@
 namespace Zaabee.Dapper.Extensions
 {
-    public enum ConditionType
+    public enum CriteriaType
     {
         Single,
+        Multi,
         All
     }
 }
