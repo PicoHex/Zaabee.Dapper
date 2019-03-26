@@ -18,7 +18,7 @@
 
 using System.Linq.Expressions;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda
 {
 	public interface IExpression2Sql
 	{

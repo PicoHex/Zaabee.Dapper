@@ -16,7 +16,7 @@
  */
 #endregion
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda
 {
 	public enum DatabaseType
 	{

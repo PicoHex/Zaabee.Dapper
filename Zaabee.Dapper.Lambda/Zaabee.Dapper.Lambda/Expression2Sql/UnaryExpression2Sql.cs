@@ -18,7 +18,7 @@
 
 using System.Linq.Expressions;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda.Expression2Sql
 {
 	class UnaryExpression2Sql : BaseExpression2Sql<UnaryExpression>
 	{

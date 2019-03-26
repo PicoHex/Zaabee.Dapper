@@ -16,7 +16,7 @@
  */
 #endregion
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda
 {
 	public static class Expression2SqlEx
 	{

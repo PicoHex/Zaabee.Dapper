@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,20 +14,21 @@ namespace Zaabee.Dapper.Extensions
 {
     public static class DapperExtensions
     {
-        private static readonly ConcurrentDictionary<Type, TypeMapInfo> TypePropertyDict =
+        private static readonly ConcurrentDictionary<Type, TypeMapInfo> TypePropertyCache =
             new ConcurrentDictionary<Type, TypeMapInfo>();
 
-        private static readonly ConcurrentDictionary<Type, string> InsertSqlDict =
+        private static readonly ConcurrentDictionary<Type, string> InsertSqlCache =
             new ConcurrentDictionary<Type, string>();
 
-        private static readonly ConcurrentDictionary<Type, Dictionary<ConditionType, string>> DeleteSqlDict =
-            new ConcurrentDictionary<Type, Dictionary<ConditionType, string>>();
+        private static readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> DeleteSqlCache =
+            new ConcurrentDictionary<Type, Dictionary<CriteriaType, string>>();
 
         private static readonly ConcurrentDictionary<Type, string> UpdateSqlDict =
             new ConcurrentDictionary<Type, string>();
 
-        private static readonly ConcurrentDictionary<Type, Dictionary<ConditionType, string>> SelectSqlDict =
-            new ConcurrentDictionary<Type, Dictionary<ConditionType, string>>();
+        private static readonly ConcurrentDictionary<Type, Dictionary<SelectType, Dictionary<CriteriaType, string>>>
+            SelectSqlCache =
+                new ConcurrentDictionary<Type, Dictionary<SelectType, Dictionary<CriteriaType, string>>>();
 
         #region sync
 
@@ -48,7 +50,7 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return connection.Execute(
-                GetDeleteSql(typeof(T), ConditionType.Single),
+                GetDeleteSql(typeof(T), CriteriaType.Single),
                 new {Id = GetIdValue(persistentObject)},
                 transaction, commandTimeout, commandType);
         }
@@ -57,15 +59,34 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return connection.Execute(
-                GetDeleteSql(typeof(T), ConditionType.Single),
+                GetDeleteSql(typeof(T), CriteriaType.Single),
                 new {Id = id},
                 transaction, commandTimeout, commandType);
+        }
+
+        public static int RemoveAll<T>(this IDbConnection connection, List<T> persistentObjects,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var ids = persistentObjects.Select(GetIdValue).ToList();
+            return connection.Execute(GetDeleteSql(typeof(T), CriteriaType.Multi), new {Ids = (IEnumerable) ids},
+                transaction,
+                commandTimeout,
+                commandType);
+        }
+
+        public static int RemoveAll<T>(this IDbConnection connection, object ids,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            return connection.Execute(GetDeleteSql(typeof(T), CriteriaType.Multi), new {Ids = (IEnumerable) ids},
+                transaction,
+                commandTimeout,
+                commandType);
         }
 
         public static int RemoveAll<T>(this IDbConnection connection,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return connection.Execute(GetDeleteSql(typeof(T), ConditionType.All), null, transaction, commandTimeout,
+            return connection.Execute(GetDeleteSql(typeof(T), CriteriaType.All), null, transaction, commandTimeout,
                 commandType);
         }
 
@@ -86,28 +107,42 @@ namespace Zaabee.Dapper.Extensions
         public static T QuerySingle<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return connection.QuerySingle<T>(GetSelectSql(typeof(T), ConditionType.Single), id, transaction,
+            return connection.QuerySingle<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single),
+                new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
         public static T QueryFirst<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return connection.QueryFirst<T>(GetSelectSql(typeof(T), ConditionType.Single), id, transaction,
+            return connection.QueryFirst<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single),
+                new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
         public static T QuerySingleOrDefault<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return connection.QuerySingleOrDefault<T>(GetSelectSql(typeof(T), ConditionType.Single), id, transaction,
+            return connection.QuerySingleOrDefault<T>(
+                GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single), new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
         public static T QueryFirstOrDefault<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return connection.QueryFirstOrDefault<T>(GetSelectSql(typeof(T), ConditionType.Single), id, transaction,
+            return connection.QueryFirstOrDefault<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single),
+                new {Id = id}, transaction,
+                commandTimeout, commandType);
+        }
+
+        public static IEnumerable<T> Query<T>(this IDbConnection connection, object ids,
+            IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
+            CommandType? commandType = null)
+        {
+            return connection.Query<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Multi),
+                new {Ids = (IEnumerable) ids}, transaction,
+                buffered,
                 commandTimeout, commandType);
         }
 
@@ -115,7 +150,8 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
         {
-            return connection.Query<T>(GetSelectSql(typeof(T), ConditionType.All), null, transaction, buffered,
+            return connection.Query<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.All), null,
+                transaction, buffered,
                 commandTimeout,
                 commandType);
         }
@@ -142,7 +178,7 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.ExecuteAsync(
-                GetDeleteSql(typeof(T), ConditionType.Single),
+                GetDeleteSql(typeof(T), CriteriaType.Single),
                 new {Id = GetIdValue(persistentObject)},
                 transaction, commandTimeout, commandType);
         }
@@ -151,15 +187,29 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.ExecuteAsync(
-                GetDeleteSql(typeof(T), ConditionType.Single),
+                GetDeleteSql(typeof(T), CriteriaType.Single),
                 new {Id = id},
                 transaction, commandTimeout, commandType);
+        }
+
+        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, List<T> persistentObjects,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), CriteriaType.Multi),
+                new {Ids = persistentObjects.Select(GetIdValue)}, transaction, commandTimeout, commandType);
+        }
+
+        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, List<object> ids,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), CriteriaType.Multi),
+                new {Ids = (IEnumerable) ids}, transaction, commandTimeout, commandType);
         }
 
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), ConditionType.All), null, transaction,
+            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), CriteriaType.All), null, transaction,
                 commandTimeout,
                 commandType);
         }
@@ -181,36 +231,51 @@ namespace Zaabee.Dapper.Extensions
         public static async Task<T> QuerySingleAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.QuerySingleAsync<T>(GetSelectSql(typeof(T), ConditionType.Single), id, transaction,
+            return await connection.QuerySingleAsync<T>(
+                GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single), new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
         public static async Task<T> QueryFirstAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.QueryFirstAsync<T>(GetSelectSql(typeof(T), ConditionType.Single), id, transaction,
+            return await connection.QueryFirstAsync<T>(
+                GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single), new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
         public static async Task<T> QuerySingleOrDefaultAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.QuerySingleOrDefaultAsync<T>(GetSelectSql(typeof(T), ConditionType.Single), id,
+            return await connection.QuerySingleOrDefaultAsync<T>(
+                GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single), new {Id = id},
                 transaction, commandTimeout, commandType);
         }
 
         public static async Task<T> QueryFirstOrDefaultAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.QueryFirstOrDefaultAsync<T>(GetSelectSql(typeof(T), ConditionType.Single), id,
+            return await connection.QueryFirstOrDefaultAsync<T>(
+                GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Single), new {Id = id},
                 transaction, commandTimeout, commandType);
+        }
+
+        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, List<object> ids,
+            IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
+            CommandType? commandType = null)
+        {
+            return await connection.QueryAsync<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.Multi),
+                new {Ids = (IEnumerable) ids},
+                transaction,
+                commandTimeout, commandType);
         }
 
         public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
         {
-            return await connection.QueryAsync<T>(GetSelectSql(typeof(T), ConditionType.All), null, transaction,
+            return await connection.QueryAsync<T>(GetSelectSql(typeof(T), SelectType.AllFields, CriteriaType.All), null,
+                transaction,
                 commandTimeout,
                 commandType);
         }
@@ -221,7 +286,7 @@ namespace Zaabee.Dapper.Extensions
 
         private static string GetInsertSql(Type type)
         {
-            return InsertSqlDict.GetOrAdd(type, key =>
+            return InsertSqlCache.GetOrAdd(type, key =>
             {
                 var typeMapInfo = GetTypeMapInfo(type);
 
@@ -237,13 +302,17 @@ namespace Zaabee.Dapper.Extensions
             });
         }
 
-        private static string GetDeleteSql(Type type, ConditionType conditionType)
+        private static string GetDeleteSql(Type type, CriteriaType conditionType)
         {
             var typeMapInfo = GetTypeMapInfo(type);
-            var sqls = DeleteSqlDict.GetOrAdd(type, key => new Dictionary<ConditionType, string>
+            var sqls = DeleteSqlCache.GetOrAdd(type, key => new Dictionary<CriteriaType, string>
             {
-                {ConditionType.Single, $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"},
-                {ConditionType.All, $"DELETE FROM {typeMapInfo.TableName}"}
+                {CriteriaType.Single, $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"},
+                {
+                    CriteriaType.Multi,
+                    $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                },
+                {CriteriaType.All, $"DELETE FROM {typeMapInfo.TableName}"}
             });
 
             return sqls[conditionType];
@@ -259,7 +328,7 @@ namespace Zaabee.Dapper.Extensions
                     $"UPDATE {typeMapInfo.TableName} SET {setSql} WHERE {typeMapInfo.IdColumnName} = @{typeMapInfo.IdPropertyInfo.Name}");
         }
 
-        private static string GetSelectSql(Type type, ConditionType conditionType)
+        private static string GetSelectSql(Type type, SelectType selectType, CriteriaType criteriaType)
         {
             var typeMapInfo = GetTypeMapInfo(type);
             var propertyInfoDict = new Dictionary<string, PropertyInfo>
@@ -269,23 +338,83 @@ namespace Zaabee.Dapper.Extensions
             var selectString =
                 string.Join(",", propertyInfoDict.Select(pair => $"{pair.Key} AS {pair.Value.Name}"));
 
-            var sqls = SelectSqlDict.GetOrAdd(type, key => new Dictionary<ConditionType, string>
+            var sqls = SelectSqlCache.GetOrAdd(type, key => new Dictionary<SelectType, Dictionary<CriteriaType, string>>
             {
                 {
-                    ConditionType.Single,
-                    $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
+                    SelectType.AllFields, new Dictionary<CriteriaType, string>
+                    {
+                        {
+                            CriteriaType.Single,
+                            $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
+                        },
+                        {
+                            CriteriaType.Multi,
+                            $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                        },
+                        {CriteriaType.All, $"SELECT {selectString} FROM {typeMapInfo.TableName}"}
+                    }
                 },
-                {ConditionType.All, $"SELECT {selectString} FROM {typeMapInfo.TableName}"}
+                {
+                    SelectType.CountById, new Dictionary<CriteriaType, string>
+                    {
+                        {
+                            CriteriaType.Single,
+                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
+                        },
+                        {
+                            CriteriaType.Multi,
+                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                        },
+                        {
+                            CriteriaType.All,
+                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName}"
+                        }
+                    }
+                },
+                {
+                    SelectType.CountBy1, new Dictionary<CriteriaType, string>
+                    {
+                        {
+                            CriteriaType.Single,
+                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
+                        },
+                        {
+                            CriteriaType.Multi,
+                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                        },
+                        {
+                            CriteriaType.All,
+                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName}"
+                        }
+                    }
+                },
+                {
+                    SelectType.CountByStar, new Dictionary<CriteriaType, string>
+                    {
+                        {
+                            CriteriaType.Single,
+                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
+                        },
+                        {
+                            CriteriaType.Multi,
+                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                        },
+                        {
+                            CriteriaType.All,
+                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName}"
+                        }
+                    }
+                },
             });
 
-            return sqls[conditionType];
+            return sqls[selectType][criteriaType];
         }
 
         #endregion
 
         private static TypeMapInfo GetTypeMapInfo(Type type)
         {
-            return TypePropertyDict.GetOrAdd(type, typeKey =>
+            return TypePropertyCache.GetOrAdd(type, typeKey =>
             {
                 var typeMapInfo = new TypeMapInfo
                 {

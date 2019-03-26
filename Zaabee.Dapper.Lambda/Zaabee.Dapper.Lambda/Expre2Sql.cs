@@ -19,7 +19,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda
 {
 	public static class Expre2Sql
 	{
@@ -44,39 +44,55 @@ namespace Expression2Sql
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
+
 		public static Expression2SqlCore<T> Select<T, T2>(Expression<Func<T, T2, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
+
 		public static Expression2SqlCore<T> Select<T, T2, T3>(Expression<Func<T, T2, T3, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4>(Expression<Func<T, T2, T3, T4, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4>(
+			Expression<Func<T, T2, T3, T4, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5>(Expression<Func<T, T2, T3, T4, T5, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5>(
+			Expression<Func<T, T2, T3, T4, T5, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6>(Expression<Func<T, T2, T3, T4, T5, T6, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6>(
+			Expression<Func<T, T2, T3, T4, T5, T6, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T2, T3, T4, T5, T6, T7, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7>(
+			Expression<Func<T, T2, T3, T4, T5, T6, T7, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7, T8>(Expression<Func<T, T2, T3, T4, T5, T6, T7, T8, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7, T8>(
+			Expression<Func<T, T2, T3, T4, T5, T6, T7, T8, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7, T8, T9>(Expression<Func<T, T2, T3, T4, T5, T6, T7, T8, T9, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7, T8, T9>(
+			Expression<Func<T, T2, T3, T4, T5, T6, T7, T8, T9, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}
-		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Expression<Func<T, T2, T3, T4, T5, T6, T7, T8, T9, T10, object>> expression = null)
+
+		public static Expression2SqlCore<T> Select<T, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+			Expression<Func<T, T2, T3, T4, T5, T6, T7, T8, T9, T10, object>> expression = null)
 		{
 			return new Expression2SqlCore<T>(DatabaseType).Select(expression);
 		}

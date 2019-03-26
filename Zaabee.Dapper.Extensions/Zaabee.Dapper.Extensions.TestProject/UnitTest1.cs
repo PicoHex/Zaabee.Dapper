@@ -6,6 +6,7 @@ using System.Linq;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using Xunit;
+using Zaabee.Json;
 using Zaabee.SequentialGuid;
 
 namespace Zaabee.Dapper.Extensions.TestProject
@@ -53,23 +54,165 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-//        [Fact]
-//        public void RemoveAll()
-//        {
-//            int quantity, result;
-//            using (var conn = GetConn())
-//            {
-//                quantity = conn.Query<MyDomainObject>().Count();
-//                result = conn.RemoveAll<MyDomainObject>();
-//            }
-//
-//            Assert.Equal(quantity, result);
-//        }
+        [Fact]
+        public void RemoveAllByIds()
+        {
+            int result;
+            List<MyDomainObject> entities;
+            using (var conn = GetConn())
+            {
+                entities = CreateDomainObjects(10);
+                conn.AddRange(entities);
+                result = conn.RemoveAll<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
+            }
+
+            Assert.Equal(entities.Count, result);
+        }
+
+        [Fact]
+        public void RemoveAllByEntities()
+        {
+            int result;
+            List<MyDomainObject> entities;
+            using (var conn = GetConn())
+            {
+                entities = CreateDomainObjects(10);
+                conn.AddRange(entities);
+                result = conn.RemoveAll(entities);
+            }
+
+            Assert.Equal(entities.Count, result);
+        }
+
+        [Fact]
+        public void RemoveAll()
+        {
+            int quantity, result;
+            using (var conn = GetConn())
+            {
+                quantity = conn.Query<MyDomainObject>().Count();
+                result = conn.RemoveAll<MyDomainObject>();
+            }
+
+            Assert.Equal(quantity, result);
+        }
+
+        [Fact]
+        public void Update()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                conn.Add(entity);
+                entity.Name = "hahahahaha";
+                conn.Update(entity);
+                var result = conn.QueryFirstOrDefault<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public void UpdateAll()
+        {
+            using (var conn = GetConn())
+            {
+                var entities = CreateDomainObjects(10);
+                conn.AddRange(entities);
+                entities.ForEach(entity => entity.Name = "hahahahaha");
+                conn.UpdateAll(entities);
+                var results = conn.Query<MyDomainObject>(entities.Select(entity => entity.Id).ToList()).ToList();
+                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
+                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+            }
+        }
+
+        [Fact]
+        public void QueryFirst()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                conn.Add(entity);
+                var result = conn.QueryFirst<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public void QuerySingle()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                conn.Add(entity);
+                var result = conn.QuerySingle<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public void QueryFirstOrDefault()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                conn.Add(entity);
+                var result = conn.QueryFirstOrDefault<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public void QuerySingleOrDefault()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                conn.Add(entity);
+                var result = conn.QuerySingleOrDefault<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public void Query()
+        {
+            using (var conn = GetConn())
+            {
+                var entities = CreateDomainObjects(10);
+                conn.AddRange(entities);
+                var results = conn.Query<MyDomainObject>(entities.Select(e => e.Id).ToList());
+                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
+                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+            }
+        }
+
+        [Fact]
+        public void QueryAll()
+        {
+            using (var conn = GetConn())
+            {
+                var entities = CreateDomainObjects(10);
+                conn.AddRange(entities);
+                var results = conn.Query<MyDomainObject>();
+                Assert.True(results.Count() >= entities.Count);
+            }
+        }
 
         private IDbConnection GetConn()
         {
-//            return GetPgSqlConn();
-            return GetMySqlConn();
+            return GetPgSqlConn();
+//            return GetMySqlConn();
 //            return GetMsSqlConn();
         }
 
@@ -100,11 +243,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
                 Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
-                CreateTime = DateTime.Now
+                CreateTime = DateTime.UtcNow
             };
         }
 
-        private List<MyDomainObject> CreateDomainObjects(int quantity, SequentialGuidHelper.SequentialGuidType? guidType = null)
+        private List<MyDomainObject> CreateDomainObjects(int quantity,
+            SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
             return Enumerable.Range(0, quantity).Select(p => CreateDomainObject(guidType)).ToList();
         }

@@ -18,9 +18,9 @@
 
 using System.Linq.Expressions;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda.Expression2Sql
 {
-	class ConstantExpression2Sql : BaseExpression2Sql<ConstantExpression>
+	internal class ConstantExpression2Sql : BaseExpression2Sql<ConstantExpression>
 	{
 		protected override SqlPack Where(ConstantExpression expression, SqlPack sqlPack)
 		{
@@ -30,14 +30,7 @@ namespace Expression2Sql
 
 		protected override SqlPack In(ConstantExpression expression, SqlPack sqlPack)
 		{
-			if (expression.Type.Name == "String")
-			{
-				sqlPack.Sql.AppendFormat("'{0}',", expression.Value);
-			}
-			else
-			{
-				sqlPack.Sql.AppendFormat("{0},", expression.Value);
-			}
+			sqlPack.Sql.AppendFormat(expression.Type.Name == "String" ? "'{0}'," : "{0},", expression.Value);
 			return sqlPack;
 		}
 	}

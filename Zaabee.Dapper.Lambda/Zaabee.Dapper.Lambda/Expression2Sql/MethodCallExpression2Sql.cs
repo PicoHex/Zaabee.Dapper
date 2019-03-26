@@ -20,19 +20,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda.Expression2Sql
 {
-	class MethodCallExpression2Sql : BaseExpression2Sql<MethodCallExpression>
+	internal class MethodCallExpression2Sql : BaseExpression2Sql<MethodCallExpression>
 	{
-		static Dictionary<string, Action<MethodCallExpression, SqlPack>> _Methods = new Dictionary<string, Action<MethodCallExpression, SqlPack>>
-        {
-            {"Like",Like},
-            {"LikeLeft",LikeLeft},
-            {"LikeRight",LikeRight},
-            {"In",In}
-        };
+		private static readonly Dictionary<string, Action<MethodCallExpression, SqlPack>> Methods =
+			new Dictionary<string, Action<MethodCallExpression, SqlPack>>
+			{
+				{"Like", Like},
+				{"LikeLeft", LikeLeft},
+				{"LikeRight", LikeRight},
+				{"In", In}
+			};
 
-		private static void In(MethodCallExpression expression, SqlPack sqlPack)
+		private new static void In(MethodCallExpression expression, SqlPack sqlPack)
 		{
 			Expression2SqlProvider.Where(expression.Arguments[0], sqlPack);
 			sqlPack += " in";
@@ -42,9 +43,8 @@ namespace Expression2Sql
 		private static void Like(MethodCallExpression expression, SqlPack sqlPack)
 		{
 			if (expression.Object != null)
-			{
 				Expression2SqlProvider.Where(expression.Object, sqlPack);
-			}
+
 			Expression2SqlProvider.Where(expression.Arguments[0], sqlPack);
 			sqlPack += " like '%' +";
 			Expression2SqlProvider.Where(expression.Arguments[1], sqlPack);
@@ -54,9 +54,8 @@ namespace Expression2Sql
 		private static void LikeLeft(MethodCallExpression expression, SqlPack sqlPack)
 		{
 			if (expression.Object != null)
-			{
 				Expression2SqlProvider.Where(expression.Object, sqlPack);
-			}
+
 			Expression2SqlProvider.Where(expression.Arguments[0], sqlPack);
 			sqlPack += " like '%' +";
 			Expression2SqlProvider.Where(expression.Arguments[1], sqlPack);
@@ -65,9 +64,8 @@ namespace Expression2Sql
 		private static void LikeRight(MethodCallExpression expression, SqlPack sqlPack)
 		{
 			if (expression.Object != null)
-			{
 				Expression2SqlProvider.Where(expression.Object, sqlPack);
-			}
+
 			Expression2SqlProvider.Where(expression.Arguments[0], sqlPack);
 			sqlPack += " like ";
 			Expression2SqlProvider.Where(expression.Arguments[1], sqlPack);
@@ -79,18 +77,13 @@ namespace Expression2Sql
 		{
 			var key = expression.Method;
 			if (key.IsGenericMethod)
-			{
 				key = key.GetGenericMethodDefinition();
-			}
 
-			Action<MethodCallExpression, SqlPack> action;
-			if (_Methods.TryGetValue(key.Name, out action))
-			{
-				action(expression, sqlPack);
-				return sqlPack;
-			}
+			if (!Methods.TryGetValue(key.Name, out var action))
+				throw new NotImplementedException("无法解析方法" + expression.Method);
+			action(expression, sqlPack);
+			return sqlPack;
 
-			throw new NotImplementedException("无法解析方法" + expression.Method);
 		}
 	}
 }

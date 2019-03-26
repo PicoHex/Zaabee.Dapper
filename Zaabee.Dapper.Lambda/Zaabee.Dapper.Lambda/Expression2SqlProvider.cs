@@ -18,119 +18,71 @@
 
 using System;
 using System.Linq.Expressions;
+using Zaabee.Dapper.Lambda.Expression2Sql;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda
 {
 	internal class Expression2SqlProvider
 	{
 		private static IExpression2Sql GetExpression2Sql(Expression expression)
 		{
-			if (expression == null)
+			switch (expression)
 			{
-				throw new ArgumentNullException("expression", "不能为null");
+				case null:
+					throw new ArgumentNullException(nameof(expression), "不能为null");
+				case BinaryExpression _:
+					return new BinaryExpression2Sql();
+				case BlockExpression _:
+					throw new NotImplementedException("未实现的BlockExpression2Sql");
+				case ConditionalExpression _:
+					throw new NotImplementedException("未实现的ConditionalExpression2Sql");
+				case ConstantExpression _:
+					return new ConstantExpression2Sql();
+				case DebugInfoExpression _:
+					throw new NotImplementedException("未实现的DebugInfoExpression2Sql");
+				case DefaultExpression _:
+					throw new NotImplementedException("未实现的DefaultExpression2Sql");
+				case DynamicExpression _:
+					throw new NotImplementedException("未实现的DynamicExpression2Sql");
+				case GotoExpression _:
+					throw new NotImplementedException("未实现的GotoExpression2Sql");
+				case IndexExpression _:
+					throw new NotImplementedException("未实现的IndexExpression2Sql");
+				case InvocationExpression _:
+					throw new NotImplementedException("未实现的InvocationExpression2Sql");
+				case LabelExpression _:
+					throw new NotImplementedException("未实现的LabelExpression2Sql");
+				case LambdaExpression _:
+					throw new NotImplementedException("未实现的LambdaExpression2Sql");
+				case ListInitExpression _:
+					throw new NotImplementedException("未实现的ListInitExpression2Sql");
+				case LoopExpression _:
+					throw new NotImplementedException("未实现的LoopExpression2Sql");
+				case MemberExpression _:
+					return new MemberExpression2Sql();
+				case MemberInitExpression _:
+					throw new NotImplementedException("未实现的MemberInitExpression2Sql");
+				case MethodCallExpression _:
+					return new MethodCallExpression2Sql();
+				case NewArrayExpression _:
+					return new NewArrayExpression2Sql();
+				case NewExpression _:
+					return new NewExpression2Sql();
+				case ParameterExpression _:
+					throw new NotImplementedException("未实现的ParameterExpression2Sql");
+				case RuntimeVariablesExpression _:
+					throw new NotImplementedException("未实现的RuntimeVariablesExpression2Sql");
+				case SwitchExpression _:
+					throw new NotImplementedException("未实现的SwitchExpression2Sql");
+				case TryExpression _:
+					throw new NotImplementedException("未实现的TryExpression2Sql");
+				case TypeBinaryExpression _:
+					throw new NotImplementedException("未实现的TypeBinaryExpression2Sql");
+				case UnaryExpression _:
+					return new UnaryExpression2Sql();
+				default:
+					throw new NotImplementedException("未实现的Expression2Sql");
 			}
-
-			if (expression is BinaryExpression)
-			{
-				return new BinaryExpression2Sql();
-			}
-			if (expression is BlockExpression)
-			{
-				throw new NotImplementedException("未实现的BlockExpression2Sql");
-			}
-			if (expression is ConditionalExpression)
-			{
-				throw new NotImplementedException("未实现的ConditionalExpression2Sql");
-			}
-			if (expression is ConstantExpression)
-			{
-				return new ConstantExpression2Sql();
-			}
-			if (expression is DebugInfoExpression)
-			{
-				throw new NotImplementedException("未实现的DebugInfoExpression2Sql");
-			}
-			if (expression is DefaultExpression)
-			{
-				throw new NotImplementedException("未实现的DefaultExpression2Sql");
-			}
-			if (expression is DynamicExpression)
-			{
-				throw new NotImplementedException("未实现的DynamicExpression2Sql");
-			}
-			if (expression is GotoExpression)
-			{
-				throw new NotImplementedException("未实现的GotoExpression2Sql");
-			}
-			if (expression is IndexExpression)
-			{
-				throw new NotImplementedException("未实现的IndexExpression2Sql");
-			}
-			if (expression is InvocationExpression)
-			{
-				throw new NotImplementedException("未实现的InvocationExpression2Sql");
-			}
-			if (expression is LabelExpression)
-			{
-				throw new NotImplementedException("未实现的LabelExpression2Sql");
-			}
-			if (expression is LambdaExpression)
-			{
-				throw new NotImplementedException("未实现的LambdaExpression2Sql");
-			}
-			if (expression is ListInitExpression)
-			{
-				throw new NotImplementedException("未实现的ListInitExpression2Sql");
-			}
-			if (expression is LoopExpression)
-			{
-				throw new NotImplementedException("未实现的LoopExpression2Sql");
-			}
-			if (expression is MemberExpression)
-			{
-				return new MemberExpression2Sql();
-			}
-			if (expression is MemberInitExpression)
-			{
-				throw new NotImplementedException("未实现的MemberInitExpression2Sql");
-			}
-			if (expression is MethodCallExpression)
-			{
-				return new MethodCallExpression2Sql();
-			}
-			if (expression is NewArrayExpression)
-			{
-				return new NewArrayExpression2Sql();
-			}
-			if (expression is NewExpression)
-			{
-				return new NewExpression2Sql();
-			}
-			if (expression is ParameterExpression)
-			{
-				throw new NotImplementedException("未实现的ParameterExpression2Sql");
-			}
-			if (expression is RuntimeVariablesExpression)
-			{
-				throw new NotImplementedException("未实现的RuntimeVariablesExpression2Sql");
-			}
-			if (expression is SwitchExpression)
-			{
-				throw new NotImplementedException("未实现的SwitchExpression2Sql");
-			}
-			if (expression is TryExpression)
-			{
-				throw new NotImplementedException("未实现的TryExpression2Sql");
-			}
-			if (expression is TypeBinaryExpression)
-			{
-				throw new NotImplementedException("未实现的TypeBinaryExpression2Sql");
-			}
-			if (expression is UnaryExpression)
-			{
-				return new UnaryExpression2Sql();
-			}
-			throw new NotImplementedException("未实现的Expression2Sql");
 		}
 
 		public static void Update(Expression expression, SqlPack sqlPack)

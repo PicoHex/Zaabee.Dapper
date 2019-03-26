@@ -21,34 +21,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda
 {
 	public class SqlPack
 	{
-		private static readonly List<string> S_listEnglishWords = new List<string> { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", };
+		private static readonly List<string> SListEnglishWords = new List<string>
+		{
+			"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
+			"v", "w", "x", "y", "z",
+		};
 
-		private Dictionary<string, string> _dicTableName = new Dictionary<string, string>();
-		private Queue<string> _queueEnglishWords = new Queue<string>(S_listEnglishWords);
+		private readonly Dictionary<string, string> _dicTableName = new Dictionary<string, string>();
+		private Queue<string> _queueEnglishWords = new Queue<string>(SListEnglishWords);
 
 		public bool IsSingleTable { get; set; }
 
 		public List<string> SelectFields { get; set; }
 
-		public string SelectFieldsStr
-		{
-			get
-			{
-				return string.Join(",", this.SelectFields);
-			}
-		}
+		public string SelectFieldsStr => string.Join(",", SelectFields);
 
-		public int Length
-		{
-			get
-			{
-				return this.Sql.Length;
-			}
-		}
+		public int Length => Sql.Length;
 
 		public StringBuilder Sql { get; set; }
 
@@ -60,7 +52,7 @@ namespace Expression2Sql
 		{
 			get
 			{
-				switch (this.DatabaseType)
+				switch (DatabaseType)
 				{
 					case DatabaseType.SQLite:
 					case DatabaseType.SQLServer: return "@";
@@ -73,18 +65,14 @@ namespace Expression2Sql
 
 		public char this[int index]
 		{
-			get
-			{
-				return this.Sql[index];
-			}
+			get { return Sql[index]; }
 		}
 
 		public SqlPack()
 		{
-			this.DbParams = new Dictionary<string, object>();
-			this.Sql = new StringBuilder();
-			this.SelectFields = new List<string>();
-
+			DbParams = new Dictionary<string, object>();
+			Sql = new StringBuilder();
+			SelectFields = new List<string>();
 		}
 
 		public static SqlPack operator +(SqlPack sqlPack, string sql)
@@ -95,50 +83,43 @@ namespace Expression2Sql
 
 		public void Clear()
 		{
-			this.SelectFields.Clear();
-			this.Sql.Clear();
-			this.DbParams.Clear();
-			this._dicTableName.Clear();
-			this._queueEnglishWords = new Queue<string>(S_listEnglishWords);
+			SelectFields.Clear();
+			Sql.Clear();
+			DbParams.Clear();
+			_dicTableName.Clear();
+			_queueEnglishWords = new Queue<string>(SListEnglishWords);
 		}
 
 		public void AddDbParameter(object parameterValue)
 		{
 			if (parameterValue == null || parameterValue == DBNull.Value)
-			{
-				this.Sql.Append(" null");
-			}
+				Sql.Append(" null");
 			else
 			{
-				string name = this.DbParamPrefix + "param" + this.DbParams.Count;
-				this.DbParams.Add(name, parameterValue);
-				this.Sql.Append(" " + name);
+				var name = DbParamPrefix + "param" + DbParams.Count;
+				DbParams.Add(name, parameterValue);
+				Sql.Append(" " + name);
 			}
 		}
 
 		public bool SetTableAlias(string tableName)
 		{
-			if (!this._dicTableName.Keys.Contains(tableName))
-			{
-				this._dicTableName.Add(tableName, this._queueEnglishWords.Dequeue());
-				return true;
-			}
-			return false;
+			if (_dicTableName.Keys.Contains(tableName)) return false;
+			_dicTableName.Add(tableName, _queueEnglishWords.Dequeue());
+			return true;
 		}
 
 		public string GetTableAlias(string tableName)
 		{
-			if (!this.IsSingleTable && this._dicTableName.Keys.Contains(tableName))
-			{
-				return this._dicTableName[tableName];
-			}
+			if (!IsSingleTable && _dicTableName.Keys.Contains(tableName))
+				return _dicTableName[tableName];
+
 			return "";
 		}
 
 		public override string ToString()
 		{
-			return this.Sql.ToString();
+			return Sql.ToString();
 		}
-
 	}
 }

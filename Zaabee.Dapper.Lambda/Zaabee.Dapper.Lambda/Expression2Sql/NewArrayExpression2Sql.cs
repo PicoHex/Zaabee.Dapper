@@ -18,23 +18,19 @@
 
 using System.Linq.Expressions;
 
-namespace Expression2Sql
+namespace Zaabee.Dapper.Lambda.Expression2Sql
 {
-	class NewArrayExpression2Sql : BaseExpression2Sql<NewArrayExpression>
+	internal class NewArrayExpression2Sql : BaseExpression2Sql<NewArrayExpression>
 	{
 		protected override SqlPack In(NewArrayExpression expression, SqlPack sqlPack)
 		{
 			sqlPack += "(";
 
-			foreach (Expression expressionItem in expression.Expressions)
-			{
+			foreach (var expressionItem in expression.Expressions)
 				Expression2SqlProvider.In(expressionItem, sqlPack);
-			}
 
 			if (sqlPack.Sql[sqlPack.Sql.Length - 1] == ',')
-			{
 				sqlPack.Sql.Remove(sqlPack.Sql.Length - 1, 1);
-			}
 
 			sqlPack += ")";
 
