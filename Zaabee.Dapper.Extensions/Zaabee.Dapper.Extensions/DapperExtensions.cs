@@ -308,10 +308,7 @@ namespace Zaabee.Dapper.Extensions
             var sqls = DeleteSqlCache.GetOrAdd(type, key => new Dictionary<CriteriaType, string>
             {
                 {CriteriaType.Single, $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"},
-                {
-                    CriteriaType.Multi,
-                    $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
-                },
+                {CriteriaType.Multi,$"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"},
                 {CriteriaType.All, $"DELETE FROM {typeMapInfo.TableName}"}
             });
 
@@ -349,7 +346,7 @@ namespace Zaabee.Dapper.Extensions
                         },
                         {
                             CriteriaType.Multi,
-                            $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                            $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
                         },
                         {CriteriaType.All, $"SELECT {selectString} FROM {typeMapInfo.TableName}"}
                     }
@@ -363,7 +360,7 @@ namespace Zaabee.Dapper.Extensions
                         },
                         {
                             CriteriaType.Multi,
-                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
                         },
                         {
                             CriteriaType.All,
@@ -380,7 +377,7 @@ namespace Zaabee.Dapper.Extensions
                         },
                         {
                             CriteriaType.Multi,
-                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
                         },
                         {
                             CriteriaType.All,
@@ -397,7 +394,7 @@ namespace Zaabee.Dapper.Extensions
                         },
                         {
                             CriteriaType.Multi,
-                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = ANY(@ids)"
+                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
                         },
                         {
                             CriteriaType.All,
