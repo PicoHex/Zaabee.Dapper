@@ -444,9 +444,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
         private IDbConnection GetConn()
         {
-            return GetPgSqlConn();
+//            return GetPgSqlConn();
 //            return GetMySqlConn();
-//            return GetMsSqlConn();
+            return GetMsSqlConn();
         }
 
         private IDbConnection GetPgSqlConn()
