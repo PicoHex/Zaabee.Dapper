@@ -97,48 +97,48 @@ namespace Zaabee.Dapper.Extensions
                 commandType);
         }
 
-        public static T QuerySingle<T>(this IDbConnection connection, object id,
+        public static T Single<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return connection.QuerySingle<T>(GetSelectSql(typeof(T), CriteriaType.Single), new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
-        public static T QueryFirst<T>(this IDbConnection connection, object id,
+        public static T First<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return connection.QueryFirst<T>(GetSelectSql(typeof(T), CriteriaType.Single), new {Id = id}, transaction,
                 commandTimeout, commandType);
         }
 
-        public static T QuerySingleOrDefault<T>(this IDbConnection connection, object id,
+        public static T SingleOrDefault<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return connection.QuerySingleOrDefault<T>(GetSelectSql(typeof(T), CriteriaType.Single), new {Id = id},
                 transaction, commandTimeout, commandType);
         }
 
-        public static T QueryFirstOrDefault<T>(this IDbConnection connection, object id,
+        public static T FirstOrDefault<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return connection.QueryFirstOrDefault<T>(GetSelectSql(typeof(T), CriteriaType.Single), new {Id = id},
                 transaction, commandTimeout, commandType);
         }
 
-        public static IEnumerable<T> Query<T>(this IDbConnection connection, object ids,
+        public static IList<T> Query<T>(this IDbConnection connection, object ids,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
         {
             return connection.Query<T>(GetSelectSql(typeof(T), CriteriaType.Multi), new {Ids = (IEnumerable) ids},
-                transaction, buffered, commandTimeout, commandType);
+                transaction, buffered, commandTimeout, commandType).ToList();
         }
 
-        public static IEnumerable<T> Query<T>(this IDbConnection connection,
+        public static IList<T> Query<T>(this IDbConnection connection,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
         {
             return connection.Query<T>(GetSelectSql(typeof(T), CriteriaType.All), null, transaction, buffered,
-                commandTimeout, commandType);
+                commandTimeout, commandType).ToList();
         }
 
         #endregion
@@ -211,46 +211,46 @@ namespace Zaabee.Dapper.Extensions
                 persistentObjects, transaction, commandTimeout, commandType);
         }
 
-        public static async Task<T> QuerySingleAsync<T>(this IDbConnection connection, object id,
+        public static async Task<T> SingleAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.QuerySingleAsync<T>(GetSelectSql(typeof(T), CriteriaType.Single), new {Id = id},
                 transaction, commandTimeout, commandType);
         }
 
-        public static async Task<T> QueryFirstAsync<T>(this IDbConnection connection, object id,
+        public static async Task<T> FirstAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.QueryFirstAsync<T>(GetSelectSql(typeof(T), CriteriaType.Single), new {Id = id},
                 transaction, commandTimeout, commandType);
         }
 
-        public static async Task<T> QuerySingleOrDefaultAsync<T>(this IDbConnection connection, object id,
+        public static async Task<T> SingleOrDefaultAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.QuerySingleOrDefaultAsync<T>(GetSelectSql(typeof(T), CriteriaType.Single),
                 new {Id = id}, transaction, commandTimeout, commandType);
         }
 
-        public static async Task<T> QueryFirstOrDefaultAsync<T>(this IDbConnection connection, object id,
+        public static async Task<T> FirstOrDefaultAsync<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.QueryFirstOrDefaultAsync<T>(GetSelectSql(typeof(T), CriteriaType.Single),
                 new {Id = id}, transaction, commandTimeout, commandType);
         }
 
-        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, object ids,
+        public static async Task<IList<T>> QueryAsync<T>(this IDbConnection connection, object ids,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.QueryAsync<T>(GetSelectSql(typeof(T), CriteriaType.Multi),
-                new {Ids = (IEnumerable) ids}, transaction, commandTimeout, commandType);
+            return (await connection.QueryAsync<T>(GetSelectSql(typeof(T), CriteriaType.Multi),
+                new {Ids = (IEnumerable) ids}, transaction, commandTimeout, commandType)).ToList();
         }
 
-        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection,
+        public static async Task<IList<T>> QueryAsync<T>(this IDbConnection connection,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.QueryAsync<T>(GetSelectSql(typeof(T), CriteriaType.All), null, transaction,
-                commandTimeout, commandType);
+            return (await connection.QueryAsync<T>(GetSelectSql(typeof(T), CriteriaType.All), null, transaction,
+                commandTimeout, commandType)).ToList();
         }
 
         #endregion
@@ -280,22 +280,22 @@ namespace Zaabee.Dapper.Extensions
             var typeMapInfo = GetTypeMapInfo(type);
             var sqls = DeleteSqlCache.GetOrAdd(type, typeKey =>
             {
-                var fromString = $"FROM {typeMapInfo.TableName}";
+                var fromString = $"DELETE FROM {typeMapInfo.TableName}";
                 var whereEqualIdString = $"WHERE {typeMapInfo.IdColumnName} = @id";
                 var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} IN @ids";
                 return new Dictionary<CriteriaType, string>
                 {
                     {
                         CriteriaType.Single,
-                        $"DELETE {fromString} {whereEqualIdString}"
+                        $"{fromString} {whereEqualIdString}"
                     },
                     {
                         CriteriaType.Multi,
-                        $"DELETE {fromString} {whereAnyIdsString}"
+                        $"{fromString} {whereAnyIdsString}"
                     },
                     {
                         CriteriaType.All,
-                        $"DELETE {fromString}"
+                        $"{fromString}"
                     }
                 };
             });

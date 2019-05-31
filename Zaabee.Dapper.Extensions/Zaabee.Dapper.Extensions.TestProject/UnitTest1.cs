@@ -121,8 +121,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entity = CreateDomainObject();
                 conn.Add(entity);
                 entity.Name = "hahahahaha";
-                conn.Update(entity);
-                var result = conn.QueryFirstOrDefault<MyDomainObject>(entity.Id);
+                var modifyQuantity = conn.Update(entity);
+                Assert.Equal(modifyQuantity, 1);
+                var result = conn.FirstOrDefault<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -137,7 +138,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entities = CreateDomainObjects(10);
                 conn.AddRange(entities);
                 entities.ForEach(entity => entity.Name = "hahahahaha");
-                conn.UpdateAll(entities);
+                var modifyQuantity = conn.UpdateAll(entities);
+                Assert.Equal(modifyQuantity, entities.Count);
                 var results = conn.Query<MyDomainObject>(entities.Select(entity => entity.Id).ToList()).ToList();
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
@@ -145,13 +147,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void QueryFirst()
+        public void First()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 conn.Add(entity);
-                var result = conn.QueryFirst<MyDomainObject>(entity.Id);
+                var result = conn.First<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -159,13 +161,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void QuerySingle()
+        public void Single()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 conn.Add(entity);
-                var result = conn.QuerySingle<MyDomainObject>(entity.Id);
+                var result = conn.Single<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -173,13 +175,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void QueryFirstOrDefault()
+        public void FirstOrDefault()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 conn.Add(entity);
-                var result = conn.QueryFirstOrDefault<MyDomainObject>(entity.Id);
+                var result = conn.FirstOrDefault<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -187,13 +189,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void QuerySingleOrDefault()
+        public void SingleOrDefault()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 conn.Add(entity);
-                var result = conn.QuerySingleOrDefault<MyDomainObject>(entity.Id);
+                var result = conn.SingleOrDefault<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -214,7 +216,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void QueryAll()
+        public void All()
         {
             using (var conn = GetConn())
             {
@@ -335,8 +337,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entity = CreateDomainObject();
                 await conn.AddAsync(entity);
                 entity.Name = "hahahahaha";
-                await conn.UpdateAsync(entity);
-                var result = await conn.QueryFirstOrDefaultAsync<MyDomainObject>(entity.Id);
+                var modifyQuantity = await conn.UpdateAsync(entity);
+                Assert.Equal(modifyQuantity, 1);
+                var result = await conn.FirstOrDefaultAsync<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -351,7 +354,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entities = CreateDomainObjects(10);
                 await conn.AddRangeAsync(entities);
                 entities.ForEach(entity => entity.Name = "hahahahaha");
-                await conn.UpdateAllAsync(entities);
+                var modifyQuantity = await conn.UpdateAllAsync(entities);
+                Assert.Equal(modifyQuantity, entities.Count);
                 var results = await conn.QueryAsync<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
@@ -360,13 +364,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
 
         [Fact]
-        public async void QueryFirstAsync()
+        public async void FirstAsync()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 await conn.AddAsync(entity);
-                var result = await conn.QueryFirstAsync<MyDomainObject>(entity.Id);
+                var result = await conn.FirstAsync<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -374,13 +378,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public async void QuerySingleAsync()
+        public async void SingleAsync()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 await conn.AddAsync(entity);
-                var result = await conn.QuerySingleAsync<MyDomainObject>(entity.Id);
+                var result = await conn.SingleAsync<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -388,13 +392,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public async void QueryFirstOrDefaultAsync()
+        public async void FirstOrDefaultAsync()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 await conn.AddAsync(entity);
-                var result = await conn.QueryFirstOrDefaultAsync<MyDomainObject>(entity.Id);
+                var result = await conn.FirstOrDefaultAsync<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -402,13 +406,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public async void QuerySingleOrDefaultAsync()
+        public async void SingleOrDefaultAsync()
         {
             using (var conn = GetConn())
             {
                 var entity = CreateDomainObject();
                 await conn.AddAsync(entity);
-                var result = await conn.QuerySingleOrDefaultAsync<MyDomainObject>(entity.Id);
+                var result = await conn.SingleOrDefaultAsync<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -429,7 +433,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public async void QueryAllAsync()
+        public async void AllAsync()
         {
             using (var conn = GetConn())
             {
