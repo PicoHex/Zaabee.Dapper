@@ -1,6 +1,6 @@
 namespace Zaabee.Dapper.Extensions
 {
-    public enum CriteriaType
+    internal enum CriteriaType
     {
         Single,
         Multi,

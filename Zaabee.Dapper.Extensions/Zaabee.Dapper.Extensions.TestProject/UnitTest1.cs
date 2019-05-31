@@ -13,6 +13,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
 {
     public class UnitTest1
     {
+        #region sync
+
         [Fact]
         public void Add()
         {
@@ -49,6 +51,20 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entity = CreateDomainObject();
                 conn.Add(entity);
                 result = conn.Remove<MyDomainObject>(entity.Id);
+            }
+
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public void RemoveByEntity()
+        {
+            int result;
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                conn.Add(entity);
+                result = conn.Remove(entity);
             }
 
             Assert.Equal(1, result);
@@ -209,11 +225,228 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
+        #endregion
+
+        #region async
+
+        [Fact]
+        public async void AddAsync()
+        {
+            var myDomainObject = CreateDomainObject();
+            int result;
+            using (var conn = GetConn())
+            {
+                result = await conn.AddAsync(myDomainObject);
+            }
+
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public async void AddRangeAsync()
+        {
+            const int quantity = 10;
+            var myDomainObjects = CreateDomainObjects(quantity);
+            int result;
+            using (var conn = GetConn())
+            {
+                result = await conn.AddRangeAsync(myDomainObjects);
+            }
+
+            Assert.Equal(quantity, result);
+        }
+
+        [Fact]
+        public async void RemoveByIdAsync()
+        {
+            int result;
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                result = await conn.RemoveAsync<MyDomainObject>(entity.Id);
+            }
+
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public async void RemoveByEntityAsync()
+        {
+            int result;
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                result = await conn.RemoveAsync(entity);
+            }
+
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public async void RemoveAllByIdsAsync()
+        {
+            int result;
+            List<MyDomainObject> entities;
+            using (var conn = GetConn())
+            {
+                entities = CreateDomainObjects(10);
+                await conn.AddRangeAsync(entities);
+                result = await conn.RemoveAllAsync<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
+            }
+
+            Assert.Equal(entities.Count, result);
+        }
+
+        [Fact]
+        public async void RemoveAllByEntitiesAsync()
+        {
+            int result;
+            List<MyDomainObject> entities;
+            using (var conn = GetConn())
+            {
+                entities = CreateDomainObjects(10);
+                await conn.AddRangeAsync(entities);
+                result = await conn.RemoveAllAsync(entities);
+            }
+
+            Assert.Equal(entities.Count, result);
+        }
+
+        [Fact]
+        public async void RemoveAllAsync()
+        {
+            int quantity, result;
+            using (var conn = GetConn())
+            {
+                quantity = (await conn.QueryAsync<MyDomainObject>()).Count();
+                result = await conn.RemoveAllAsync<MyDomainObject>();
+            }
+
+            Assert.Equal(quantity, result);
+        }
+
+        [Fact]
+        public async void UpdateAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                entity.Name = "hahahahaha";
+                await conn.UpdateAsync(entity);
+                var result = await conn.QueryFirstOrDefaultAsync<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public async void UpdateAllAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entities = CreateDomainObjects(10);
+                await conn.AddRangeAsync(entities);
+                entities.ForEach(entity => entity.Name = "hahahahaha");
+                await conn.UpdateAllAsync(entities);
+                var results = await conn.QueryAsync<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
+                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
+                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+            }
+        }
+
+
+        [Fact]
+        public async void QueryFirstAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                var result = await conn.QueryFirstAsync<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public async void QuerySingleAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                var result = await conn.QuerySingleAsync<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public async void QueryFirstOrDefaultAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                var result = await conn.QueryFirstOrDefaultAsync<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public async void QuerySingleOrDefaultAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entity = CreateDomainObject();
+                await conn.AddAsync(entity);
+                var result = await conn.QuerySingleOrDefaultAsync<MyDomainObject>(entity.Id);
+                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                Assert.Equal(firstJson, secondJson);
+            }
+        }
+
+        [Fact]
+        public async void QueryAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entities = CreateDomainObjects(10);
+                await conn.AddRangeAsync(entities);
+                var results = await conn.QueryAsync<MyDomainObject>(entities.Select(e => e.Id).ToList());
+                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
+                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+            }
+        }
+
+        [Fact]
+        public async void QueryAllAsync()
+        {
+            using (var conn = GetConn())
+            {
+                var entities = CreateDomainObjects(10);
+                await conn.AddRangeAsync(entities);
+                var results = await conn.QueryAsync<MyDomainObject>();
+                Assert.True(results.Count() >= entities.Count);
+            }
+        }
+
+        #endregion
+
         private IDbConnection GetConn()
         {
-//            return GetPgSqlConn();
+            return GetPgSqlConn();
 //            return GetMySqlConn();
-            return GetMsSqlConn();
+//            return GetMsSqlConn();
         }
 
         private IDbConnection GetPgSqlConn()

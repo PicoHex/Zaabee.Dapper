@@ -49,10 +49,7 @@ namespace Zaabee.Dapper.Extensions
         public static int Remove<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return connection.Execute(
-                GetDeleteSql(typeof(T), CriteriaType.Single),
-                new {Id = GetIdValue(persistentObject)},
-                transaction, commandTimeout, commandType);
+            return Remove<T>(connection, GetIdValue(persistentObject), transaction, commandTimeout, commandType);
         }
 
         public static int Remove<T>(this IDbConnection connection, object id,
@@ -67,11 +64,8 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection, List<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            var ids = persistentObjects.Select(GetIdValue).ToList();
-            return connection.Execute(GetDeleteSql(typeof(T), CriteriaType.Multi), new {Ids = (IEnumerable) ids},
-                transaction,
-                commandTimeout,
-                commandType);
+            var ids = persistentObjects.Select(GetIdValue).Cast<Guid>().ToList();
+            return RemoveAll<T>(connection, ids, transaction, commandTimeout, commandType);
         }
 
         public static int RemoveAll<T>(this IDbConnection connection, object ids,
@@ -177,10 +171,8 @@ namespace Zaabee.Dapper.Extensions
         public static async Task<int> RemoveAsync<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.ExecuteAsync(
-                GetDeleteSql(typeof(T), CriteriaType.Single),
-                new {Id = GetIdValue(persistentObject)},
-                transaction, commandTimeout, commandType);
+            var id = GetIdValue(persistentObject);
+            return await RemoveAsync<T>(connection, id, transaction, commandTimeout, commandType);
         }
 
         public static async Task<int> RemoveAsync<T>(this IDbConnection connection, object id,
@@ -195,11 +187,11 @@ namespace Zaabee.Dapper.Extensions
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, List<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return await connection.ExecuteAsync(GetDeleteSql(typeof(T), CriteriaType.Multi),
-                new {Ids = persistentObjects.Select(GetIdValue)}, transaction, commandTimeout, commandType);
+            var ids = persistentObjects.Select(GetIdValue).Cast<Guid>().ToList();
+            return await RemoveAllAsync<T>(connection, ids, transaction, commandTimeout, commandType);
         }
 
-        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, List<object> ids,
+        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, object ids,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return await connection.ExecuteAsync(GetDeleteSql(typeof(T), CriteriaType.Multi),
@@ -260,7 +252,7 @@ namespace Zaabee.Dapper.Extensions
                 transaction, commandTimeout, commandType);
         }
 
-        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, List<object> ids,
+        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, object ids,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
         {
@@ -305,10 +297,10 @@ namespace Zaabee.Dapper.Extensions
         private static string GetDeleteSql(Type type, CriteriaType conditionType)
         {
             var typeMapInfo = GetTypeMapInfo(type);
-            var sqls = DeleteSqlCache.GetOrAdd(type, key => new Dictionary<CriteriaType, string>
+            var sqls = DeleteSqlCache.GetOrAdd(type, typeKey => new Dictionary<CriteriaType, string>
             {
                 {CriteriaType.Single, $"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"},
-                {CriteriaType.Multi,$"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"},
+                {CriteriaType.Multi,$"DELETE FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = Any(@ids)"},
                 {CriteriaType.All, $"DELETE FROM {typeMapInfo.TableName}"}
             });
 
@@ -332,79 +324,91 @@ namespace Zaabee.Dapper.Extensions
                 {{typeMapInfo.IdColumnName, typeMapInfo.IdPropertyInfo}};
             foreach (var pair in typeMapInfo.PropertyColumnDict)
                 propertyInfoDict.Add(pair.Key, pair.Value);
-            var selectString =
-                string.Join(",", propertyInfoDict.Select(pair => $"{pair.Key} AS {pair.Value.Name}"));
 
-            var sqls = SelectSqlCache.GetOrAdd(type, key => new Dictionary<SelectType, Dictionary<CriteriaType, string>>
+            var typeSql = SelectSqlCache.GetOrAdd(type, key =>
             {
+                var selectAllFieldsString = $"SELECT {string.Join(",", propertyInfoDict.Select(pair => $"{pair.Key} AS {pair.Value.Name}"))}";
+                var selectCountByIdString = $"SELECT COUNT({typeMapInfo.IdColumnName})";
+                const string selectCountBy1String = "SELECT COUNT(1)";
+                const string  selectCountByStarString = "SELECT COUNT(*)";
+                var fromString = $"FROM {typeMapInfo.TableName}";
+                var whereEqualIdString = $"WHERE {typeMapInfo.IdColumnName} = @id";
+                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} = Any(@ids)";
+                
+                return new Dictionary<SelectType, Dictionary<CriteriaType, string>>
                 {
-                    SelectType.AllFields, new Dictionary<CriteriaType, string>
                     {
+                        SelectType.AllFields, new Dictionary<CriteriaType, string>
                         {
-                            CriteriaType.Single,
-                            $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
-                        },
-                        {
-                            CriteriaType.Multi,
-                            $"SELECT {selectString} FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
-                        },
-                        {CriteriaType.All, $"SELECT {selectString} FROM {typeMapInfo.TableName}"}
-                    }
-                },
-                {
-                    SelectType.CountById, new Dictionary<CriteriaType, string>
-                    {
-                        {
-                            CriteriaType.Single,
-                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
-                        },
-                        {
-                            CriteriaType.Multi,
-                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
-                        },
-                        {
-                            CriteriaType.All,
-                            $"SELECT COUNT({typeMapInfo.IdColumnName}) FROM {typeMapInfo.TableName}"
+                            {
+                                CriteriaType.Single,
+                                $"{selectAllFieldsString} {fromString} {whereEqualIdString}"
+                            },
+                            {
+                                CriteriaType.Multi,
+                                $"{selectAllFieldsString} {fromString} {whereAnyIdsString}"
+                            },
+                            {
+                                CriteriaType.All,
+                                $"{selectAllFieldsString} {fromString}"
+                            }
                         }
-                    }
-                },
-                {
-                    SelectType.CountBy1, new Dictionary<CriteriaType, string>
+                    },
                     {
+                        SelectType.CountById, new Dictionary<CriteriaType, string>
                         {
-                            CriteriaType.Single,
-                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
-                        },
-                        {
-                            CriteriaType.Multi,
-                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
-                        },
-                        {
-                            CriteriaType.All,
-                            $"SELECT COUNT(1) FROM {typeMapInfo.TableName}"
+                            {
+                                CriteriaType.Single,
+                                $"{selectCountByIdString} {fromString} {whereEqualIdString}"
+                            },
+                            {
+                                CriteriaType.Multi,
+                                $"{selectCountByIdString} {fromString} {whereAnyIdsString}"
+                            },
+                            {
+                                CriteriaType.All,
+                                $"{selectCountByIdString} {fromString}"
+                            }
                         }
-                    }
-                },
-                {
-                    SelectType.CountByStar, new Dictionary<CriteriaType, string>
+                    },
                     {
+                        SelectType.CountBy1, new Dictionary<CriteriaType, string>
                         {
-                            CriteriaType.Single,
-                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} = @id"
-                        },
-                        {
-                            CriteriaType.Multi,
-                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName} WHERE {typeMapInfo.IdColumnName} IN @ids"
-                        },
-                        {
-                            CriteriaType.All,
-                            $"SELECT COUNT(*) FROM {typeMapInfo.TableName}"
+                            {
+                                CriteriaType.Single,
+                                $"{selectCountBy1String} {fromString} {whereEqualIdString}"
+                            },
+                            {
+                                CriteriaType.Multi,
+                                $"{selectCountBy1String} {fromString} {whereAnyIdsString}"
+                            },
+                            {
+                                CriteriaType.All,
+                                $"{selectCountBy1String} {fromString}"
+                            }
                         }
-                    }
-                },
+                    },
+                    {
+                        SelectType.CountByStar, new Dictionary<CriteriaType, string>
+                        {
+                            {
+                                CriteriaType.Single,
+                                $"{selectCountByStarString} {fromString} {whereEqualIdString}"
+                            },
+                            {
+                                CriteriaType.Multi,
+                                $"{selectCountByStarString} {fromString} {whereAnyIdsString}"
+                            },
+                            {
+                                CriteriaType.All,
+                                $"{selectCountByStarString} {fromString}"
+                            }
+                        }
+                    },
+                };
             });
 
-            return sqls[selectType][criteriaType];
+            return typeSql[selectType][criteriaType];
         }
 
         #endregion
@@ -419,7 +423,6 @@ namespace Zaabee.Dapper.Extensions
                     TableName = Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ??
                                 type.Name
                 };
-
                 var typeProperties = type.GetProperties();
 
                 typeMapInfo.IdPropertyInfo = typeProperties.FirstOrDefault(property =>

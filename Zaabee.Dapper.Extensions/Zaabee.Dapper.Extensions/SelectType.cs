@@ -1,6 +1,6 @@
 namespace Zaabee.Dapper.Extensions
 {
-    public enum SelectType
+    internal enum SelectType
     {
         AllFields,
         CountById,
