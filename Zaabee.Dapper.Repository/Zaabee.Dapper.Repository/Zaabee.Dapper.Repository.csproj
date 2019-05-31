@@ -6,7 +6,10 @@
 
     <ItemGroup>
       <PackageReference Include="Dapper" Version="1.60.6" />
-      <PackageReference Include="Zaabee.Dapper.Repository.Abstractions" Version="0.1.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Zaabee.Dapper.Repository.Abstractions\Zaabee.Dapper.Repository.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>
