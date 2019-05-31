@@ -428,8 +428,7 @@ namespace Zaabee.Dapper.Extensions
                     property.Name == "ID" ||
                     property.Name == "id" ||
                     property.Name == "_id" ||
-                    property.Name == $"{typeMapInfo.TableName}Id" ||
-                    property.Name == $"{typeMapInfo.TableName}_id".ToLower());
+                    property.Name == $"{typeMapInfo.TableName}Id");
 
                 if (typeMapInfo.IdPropertyInfo == null)
                     throw new ArgumentException($"Can not find the id property in {nameof(type)}.");

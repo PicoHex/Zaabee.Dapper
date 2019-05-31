@@ -68,7 +68,7 @@ namespace Zaabee.Dapper.Lambda.TestProject
 			);
 
 			Printf(
-				Expre2Sql.Select<UserInfo>(u => u.Name).Where(u => u.Name.In(new string[] {"a", "b"})),
+				Expre2Sql.Select<UserInfo>(u => u.Name).Where(u => u.Name.In(new[] {"a", "b"})),
 				"查询单表，带where in条件，写法三"
 			);
 
