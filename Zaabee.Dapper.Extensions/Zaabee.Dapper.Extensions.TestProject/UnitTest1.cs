@@ -6,7 +6,7 @@ using System.Linq;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using Xunit;
-using Zaabee.Json;
+using Zaabee.NewtonsoftJson;
 using Zaabee.SequentialGuid;
 
 namespace Zaabee.Dapper.Extensions.TestProject
@@ -122,7 +122,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 conn.Add(entity);
                 entity.Name = "hahahahaha";
                 var modifyQuantity = conn.Update(entity);
-                Assert.Equal(modifyQuantity, 1);
+                Assert.Equal(1, modifyQuantity);
                 var result = conn.FirstOrDefault<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
@@ -338,7 +338,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 await conn.AddAsync(entity);
                 entity.Name = "hahahahaha";
                 var modifyQuantity = await conn.UpdateAsync(entity);
-                Assert.Equal(modifyQuantity, 1);
+                Assert.Equal(1, modifyQuantity);
                 var result = await conn.FirstOrDefaultAsync<MyDomainObject>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
