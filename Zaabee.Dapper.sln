@@ -1,11 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Zaabee.Dapper.Repository", "Zaabee.Dapper.Repository", "{D7549530-9254-4214-AF09-9E49FE29CF2C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Repository", "Zaabee.Dapper.Repository\Zaabee.Dapper.Repository\Zaabee.Dapper.Repository.csproj", "{0380D158-D1D5-4927-A6A7-F6041D7FCED2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Repository.Abstractions", "Zaabee.Dapper.Repository\Zaabee.Dapper.Repository.Abstractions\Zaabee.Dapper.Repository.Abstractions.csproj", "{41D6B96C-A2E2-4869-A558-CE29FB3B0536}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Zaabee.Dapper.Extensions", "Zaabee.Dapper.Extensions", "{B9EB596D-C2A9-4174-908D-BE648BFD9AEE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions", "Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj", "{DE989508-7E7D-45A7-8B9D-3BEF95677D18}"
@@ -24,22 +18,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{0380D158-D1D5-4927-A6A7-F6041D7FCED2} = {D7549530-9254-4214-AF09-9E49FE29CF2C}
-		{41D6B96C-A2E2-4869-A558-CE29FB3B0536} = {D7549530-9254-4214-AF09-9E49FE29CF2C}
 		{DE989508-7E7D-45A7-8B9D-3BEF95677D18} = {B9EB596D-C2A9-4174-908D-BE648BFD9AEE}
 		{B0CA6D01-1143-4F74-A74B-2072C6FFAA67} = {B9EB596D-C2A9-4174-908D-BE648BFD9AEE}
 		{9778D327-B5EA-4000-9EC9-D1213C02A14C} = {07959174-1841-4466-8064-714C5200E7C9}
 		{4D3597ED-2E2A-4E32-9997-582615D9C0C0} = {07959174-1841-4466-8064-714C5200E7C9}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0380D158-D1D5-4927-A6A7-F6041D7FCED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0380D158-D1D5-4927-A6A7-F6041D7FCED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0380D158-D1D5-4927-A6A7-F6041D7FCED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0380D158-D1D5-4927-A6A7-F6041D7FCED2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41D6B96C-A2E2-4869-A558-CE29FB3B0536}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE989508-7E7D-45A7-8B9D-3BEF95677D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
