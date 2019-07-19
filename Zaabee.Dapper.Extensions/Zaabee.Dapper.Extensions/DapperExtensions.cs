@@ -1,14 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using Dapper;
 using Zaabee.Dapper.Extensions.Adapters;
 
 namespace Zaabee.Dapper.Extensions
 {
-    public static class DapperExtensions
+    public partial class DapperExtensions
     {
         private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary =
             new Dictionary<string, ISqlAdapter>
@@ -24,27 +24,68 @@ namespace Zaabee.Dapper.Extensions
             return AdapterDictionary.ContainsKey(connName) ? AdapterDictionary[connName] : new DefaultSqlAdapter();
         }
 
-        #region sync
-
+        #region Add
+        
         public static int Add<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            var type = typeof(T);
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetInsertSql(typeof(T)), persistentObject, transaction, commandTimeout,
+            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+            var result = connection.Execute(adapter.GetInsertSql(type), persistentObject, transaction, commandTimeout,
                 commandType);
+            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
+                AddRange(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+
+            return result;
         }
 
         public static int AddRange<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetInsertSql(typeof(T)), persistentObjects, transaction, commandTimeout,
-                commandType);
+            return AddRange(connection, persistentObjects, typeof(T),
+                transaction, commandTimeout, commandType);
         }
+
+        public static int AddRange(this IDbConnection connection, IEnumerable persistentObjects, Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var adapter = GetSqlAdapter(connection);
+            var result = connection.Execute(adapter.GetInsertSql(type), persistentObjects, transaction, commandTimeout,
+                commandType);
+            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+            foreach (var persistentObject in persistentObjects)
+            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
+                AddRange(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+            return result;
+        }
+
+        #endregion
+
+        #region Remove
 
         public static int Remove<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(typeof(T));
+            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
+                RemoveAll(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+            
             return Remove<T>(connection, TypeMapInfoHelper.GetIdValue(persistentObject), transaction, commandTimeout,
                 commandType);
         }
@@ -52,9 +93,15 @@ namespace Zaabee.Dapper.Extensions
         public static int Remove<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            return Remove(connection, id, typeof(T), transaction, commandTimeout, commandType);
+        }
+
+        public static int Remove(this IDbConnection connection, object id,Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
             var adapter = GetSqlAdapter(connection);
             return connection.Execute(
-                adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
+                adapter.GetDeleteSql(type, CriteriaType.SingleId),
                 new {Id = id},
                 transaction, commandTimeout, commandType);
         }
@@ -62,8 +109,23 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            return RemoveAll(connection, persistentObjects, typeof(T),transaction, commandTimeout, commandType);
+        }
+
+        public static int RemoveAll(this IDbConnection connection, IEnumerable persistentObjects, Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+            foreach (var persistentObject in persistentObjects)
+            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
+                RemoveAll(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
+            return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.SingleId),
                 persistentObjects,
                 transaction,
                 commandTimeout,
@@ -73,9 +135,15 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection, object ids,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            return RemoveAll(connection, ids, typeof(T), transaction, commandTimeout, commandType);
+        }
+
+        public static int RemoveAll(this IDbConnection connection, object ids, Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetDeleteSql(typeof(T), CriteriaType.MultiIds),
-                new {Ids = (IEnumerable)ids},
+            return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.MultiIds),
+                new {Ids = (IEnumerable) ids},
                 transaction,
                 commandTimeout,
                 commandType);
@@ -84,11 +152,19 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            return RemoveAll(connection, typeof(T),transaction, commandTimeout, commandType);
+        }
+
+        public static int RemoveAll(this IDbConnection connection,Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetDeleteSql(typeof(T), CriteriaType.None), null, transaction,
+            return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.None), null, transaction,
                 commandTimeout,
                 commandType);
         }
+
+        #endregion
 
         public static int Update<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -149,7 +225,7 @@ namespace Zaabee.Dapper.Extensions
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(T), CriteriaType.MultiIds);
             return connection.Query<T>(sql,
-                new {Ids = (IEnumerable)ids},
+                new {Ids = (IEnumerable) ids},
                 transaction, buffered, commandTimeout, commandType).ToList();
         }
 
@@ -161,141 +237,5 @@ namespace Zaabee.Dapper.Extensions
             return connection.Query<T>(adapter.GetSelectSql(typeof(T), CriteriaType.None), null, transaction, buffered,
                 commandTimeout, commandType).ToList();
         }
-
-        #endregion
-
-        #region async
-
-        public static async Task<int> AddAsync<T>(this IDbConnection connection, T persistentObject,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetInsertSql(typeof(T)), persistentObject, transaction,
-                commandTimeout,
-                commandType);
-        }
-
-        public static async Task<int> AddRangeAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetInsertSql(typeof(T)), persistentObjects, transaction,
-                commandTimeout, commandType);
-        }
-
-        public static async Task<int> RemoveAsync<T>(this IDbConnection connection, T persistentObject,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var id = TypeMapInfoHelper.GetIdValue(persistentObject);
-            return await RemoveAsync<T>(connection, id, transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<int> RemoveAsync<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(
-                adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
-                persistentObjects,
-                transaction,
-                commandTimeout,
-                commandType);
-        }
-
-        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, object ids,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.MultiIds),
-                new {Ids = (IEnumerable)ids}, transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.None), null, transaction,
-                commandTimeout,
-                commandType);
-        }
-
-        public static async Task<int> UpdateAsync<T>(this IDbConnection connection, T persistentObject,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetUpdateSql(typeof(T)), persistentObject, transaction,
-                commandTimeout,
-                commandType);
-        }
-
-        public static async Task<int> UpdateAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.ExecuteAsync(adapter.GetUpdateSql(typeof(T)),
-                persistentObjects, transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<T> SingleAsync<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.QuerySingleAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<T> FirstAsync<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.QueryFirstAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<T> SingleOrDefaultAsync<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.QuerySingleOrDefaultAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id}, transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<T> FirstOrDefaultAsync<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return await connection.QueryFirstOrDefaultAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id}, transaction, commandTimeout, commandType);
-        }
-
-        public static async Task<IList<T>> QueryAsync<T>(this IDbConnection connection, object ids,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return (await connection.QueryAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.MultiIds),
-                new {Ids = (IEnumerable)ids}, transaction, commandTimeout, commandType)).ToList();
-        }
-
-        public static async Task<IList<T>> QueryAsync<T>(this IDbConnection connection,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return (await connection.QueryAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.None), null,
-                transaction,
-                commandTimeout, commandType)).ToList();
-        }
-
-        #endregion
     }
 }

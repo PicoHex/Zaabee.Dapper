@@ -20,11 +20,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
         public void Add()
         {
-            var MyPoco = CreatePoco();
+            var myPoco = CreatePoco();
             int result;
             using (var conn = _connFunc())
             {
-                result = conn.Add(MyPoco);
+                result = conn.Add(myPoco);
             }
 
             Assert.Equal(1, result);
@@ -33,11 +33,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public void AddRange()
         {
             const int quantity = 10;
-            var MyPocos = CreatePocos(quantity);
+            var myPocos = CreatePocos(quantity);
             int result;
             using (var conn = _connFunc())
             {
-                result = conn.AddRange(MyPocos);
+                result = conn.AddRange(myPocos);
             }
 
             Assert.Equal(quantity, result);

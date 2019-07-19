@@ -11,6 +11,6 @@ namespace Zaabee.Dapper.Extensions
         public PropertyInfo IdPropertyInfo { get; set; }
         public string IdColumnName { get; set; }
         public Dictionary<string, PropertyInfo> PropertyColumnDict { get; } = new Dictionary<string, PropertyInfo>();
-        public Dictionary<string, TypeMapInfo> PropertyTableDict { get; } = new Dictionary<string, TypeMapInfo>();
+        public Dictionary<PropertyInfo, TypeMapInfo> PropertyTableDict { get; } = new Dictionary<PropertyInfo, TypeMapInfo>();
     }
 }

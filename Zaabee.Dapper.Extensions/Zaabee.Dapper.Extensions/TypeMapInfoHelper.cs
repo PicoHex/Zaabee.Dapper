@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection;
 
 namespace Zaabee.Dapper.Extensions
 {
@@ -18,12 +18,16 @@ namespace Zaabee.Dapper.Extensions
             return GetTypeMapInfo(typeof(T)).IdPropertyInfo.GetValue(entity);
         }
 
+        public static object GetPropertyTableValue<T>(T entity, PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetValue(entity);
+        }
+
         public static TypeMapInfo GetTypeMapInfo(Type type)
         {
-            lock (type)
+            return TypePropertyCache.GetOrAdd(type, typeKey =>
             {
-                var sameTypeTables = new List<string>();
-                var result = TypePropertyCache.GetOrAdd(type, typeKey =>
+                lock (type)
                 {
                     var typeMapInfo = new TypeMapInfo
                     {
@@ -54,9 +58,6 @@ namespace Zaabee.Dapper.Extensions
                     foreach (var propertyInfo in typeProperties.Where(property =>
                         property != typeMapInfo.IdPropertyInfo))
                     {
-                        var name = Attribute.GetCustomAttributes(propertyInfo)
-                                       .OfType<ColumnAttribute>().FirstOrDefault()?.Name ??
-                                   propertyInfo.Name;
                         if (propertyInfo.PropertyType != typeof(string) &&
                             typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
                         {
@@ -65,19 +66,19 @@ namespace Zaabee.Dapper.Extensions
                                 throw new NotSupportedException(
                                     $"{propertyInfo.PropertyType} generic type can only be single.");
                             if (genericType == type)
-                                sameTypeTables.Add(name);
+                                continue;
                             else
-                                typeMapInfo.PropertyTableDict.Add(name, GetTypeMapInfo(genericType));
+                                typeMapInfo.PropertyTableDict.Add(propertyInfo, GetTypeMapInfo(genericType));
                         }
                         else
-                            typeMapInfo.PropertyColumnDict.Add(name, propertyInfo);
+                            typeMapInfo.PropertyColumnDict.Add(Attribute.GetCustomAttributes(propertyInfo)
+                                                                   .OfType<ColumnAttribute>().FirstOrDefault()?.Name ??
+                                                               propertyInfo.Name, propertyInfo);
                     }
 
                     return typeMapInfo;
-                });
-                sameTypeTables.ForEach(p => result.PropertyTableDict.Add(p, result));
-                return result;
-            }
+                }
+            });
         }
     }
 }
