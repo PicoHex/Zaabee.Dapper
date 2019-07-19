@@ -62,8 +62,12 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            var ids = persistentObjects.Select(TypeMapInfoHelper.GetIdValue).ToList();
-            return RemoveAll<T>(connection, ids, transaction, commandTimeout, commandType);
+            var adapter = GetSqlAdapter(connection);
+            return connection.Execute(adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
+                persistentObjects,
+                transaction,
+                commandTimeout,
+                commandType);
         }
 
         public static int RemoveAll<T>(this IDbConnection connection, object ids,
@@ -199,8 +203,12 @@ namespace Zaabee.Dapper.Extensions
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            var ids = persistentObjects.Select(TypeMapInfoHelper.GetIdValue).ToList();
-            return await RemoveAllAsync<T>(connection, ids, transaction, commandTimeout, commandType);
+            var adapter = GetSqlAdapter(connection);
+            return await connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
+                persistentObjects,
+                transaction,
+                commandTimeout,
+                commandType);
         }
 
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, object ids,
