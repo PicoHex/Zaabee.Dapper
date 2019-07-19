@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,16 +28,16 @@ namespace Zaabee.Dapper.Extensions
                     TableName = Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ??
                                 type.Name
                 };
+
                 var typeProperties = type.GetProperties();
 
-                typeMapInfo.IdPropertyInfo =
-                    typeProperties.FirstOrDefault(property =>
-                        Attribute.GetCustomAttributes(property).OfType<KeyAttribute>().Any() ||
-                        property.Name == "Id" ||
-                        property.Name == "ID" ||
-                        property.Name == "id" ||
-                        property.Name == "_id" ||
-                        property.Name == $"{typeMapInfo.TableName}Id");
+                typeMapInfo.IdPropertyInfo = typeProperties.FirstOrDefault(property =>
+                    Attribute.GetCustomAttributes(property).OfType<KeyAttribute>().Any() ||
+                    property.Name == "Id" ||
+                    property.Name == "ID" ||
+                    property.Name == "id" ||
+                    property.Name == "_id" ||
+                    property.Name == $"{typeMapInfo.TableName}Id");
 
                 if (typeMapInfo.IdPropertyInfo == null)
                     throw new ArgumentException($"Can not find the id property in {nameof(type)}.");
@@ -45,7 +46,10 @@ namespace Zaabee.Dapper.Extensions
                     Attribute.GetCustomAttributes(typeMapInfo.IdPropertyInfo).OfType<ColumnAttribute>().FirstOrDefault()
                         ?.Name ?? typeMapInfo.IdPropertyInfo.Name;
 
-                foreach (var propertyInfo in typeProperties.Where(property => property != typeMapInfo.IdPropertyInfo))
+                foreach (var propertyInfo in typeProperties.Where(property =>
+                    property != typeMapInfo.IdPropertyInfo &&
+                    (property.PropertyType == typeof(string) ||
+                     !typeof(IEnumerable).IsAssignableFrom(property.PropertyType))))
                     typeMapInfo.PropertyColumnDict.Add(
                         Attribute.GetCustomAttributes(propertyInfo).OfType<ColumnAttribute>().FirstOrDefault()?.Name ??
                         propertyInfo.Name, propertyInfo);

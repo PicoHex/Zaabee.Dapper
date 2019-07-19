@@ -18,11 +18,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
         [Fact]
         public void Add()
         {
-            var myDomainObject = CreateDomainObject();
+            var MyPoco = CreatePoco();
             int result;
             using (var conn = GetConn())
             {
-                result = conn.Add(myDomainObject);
+                result = conn.Add(MyPoco);
             }
 
             Assert.Equal(1, result);
@@ -32,11 +32,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public void AddRange()
         {
             const int quantity = 10;
-            var myDomainObjects = CreateDomainObjects(quantity);
+            var MyPocos = CreatePocos(quantity);
             int result;
             using (var conn = GetConn())
             {
-                result = conn.AddRange(myDomainObjects);
+                result = conn.AddRange(MyPocos);
             }
 
             Assert.Equal(quantity, result);
@@ -48,9 +48,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int result;
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
-                result = conn.Remove<MyDomainObject>(entity.Id);
+                result = conn.Remove<MyPoco>(entity.Id);
             }
 
             Assert.Equal(1, result);
@@ -62,7 +62,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int result;
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
                 result = conn.Remove(entity);
             }
@@ -74,12 +74,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public void RemoveAllByIds()
         {
             int result;
-            List<MyDomainObject> entities;
+            List<MyPoco> entities;
             using (var conn = GetConn())
             {
-                entities = CreateDomainObjects(10);
+                entities = CreatePocos(10);
                 conn.AddRange(entities);
-                result = conn.RemoveAll<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
+                result = conn.RemoveAll<MyPoco>(entities.Select(entity => entity.Id).ToList());
             }
 
             Assert.Equal(entities.Count, result);
@@ -89,10 +89,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public void RemoveAllByEntities()
         {
             int result;
-            List<MyDomainObject> entities;
+            List<MyPoco> entities;
             using (var conn = GetConn())
             {
-                entities = CreateDomainObjects(10);
+                entities = CreatePocos(10);
                 conn.AddRange(entities);
                 result = conn.RemoveAll(entities);
             }
@@ -106,8 +106,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int quantity, result;
             using (var conn = GetConn())
             {
-                quantity = conn.Query<MyDomainObject>().Count();
-                result = conn.RemoveAll<MyDomainObject>();
+                quantity = conn.Query<MyPoco>().Count();
+                result = conn.RemoveAll<MyPoco>();
             }
 
             Assert.Equal(quantity, result);
@@ -118,12 +118,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
                 entity.Name = "hahahahaha";
                 var modifyQuantity = conn.Update(entity);
                 Assert.Equal(1, modifyQuantity);
-                var result = conn.FirstOrDefault<MyDomainObject>(entity.Id);
+                var result = conn.FirstOrDefault<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -135,12 +135,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entities = CreateDomainObjects(10);
+                var entities = CreatePocos(10);
                 conn.AddRange(entities);
                 entities.ForEach(entity => entity.Name = "hahahahaha");
                 var modifyQuantity = conn.UpdateAll(entities);
                 Assert.Equal(modifyQuantity, entities.Count);
-                var results = conn.Query<MyDomainObject>(entities.Select(entity => entity.Id).ToList()).ToList();
+                var results = conn.Query<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
             }
@@ -151,9 +151,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
-                var result = conn.First<MyDomainObject>(entity.Id);
+                var result = conn.First<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -165,9 +165,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
-                var result = conn.Single<MyDomainObject>(entity.Id);
+                var result = conn.Single<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -179,9 +179,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
-                var result = conn.FirstOrDefault<MyDomainObject>(entity.Id);
+                var result = conn.FirstOrDefault<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -193,9 +193,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 conn.Add(entity);
-                var result = conn.SingleOrDefault<MyDomainObject>(entity.Id);
+                var result = conn.SingleOrDefault<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -207,9 +207,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entities = CreateDomainObjects(10);
+                var entities = CreatePocos(10);
                 conn.AddRange(entities);
-                var results = conn.Query<MyDomainObject>(entities.Select(e => e.Id).ToList());
+                var results = conn.Query<MyPoco>(entities.Select(e => e.Id).ToList());
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
             }
@@ -220,9 +220,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entities = CreateDomainObjects(10);
+                var entities = CreatePocos(10);
                 conn.AddRange(entities);
-                var results = conn.Query<MyDomainObject>();
+                var results = conn.Query<MyPoco>();
                 Assert.True(results.Count() >= entities.Count);
             }
         }
@@ -234,11 +234,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
         [Fact]
         public async void AddAsync()
         {
-            var myDomainObject = CreateDomainObject();
+            var MyPoco = CreatePoco();
             int result;
             using (var conn = GetConn())
             {
-                result = await conn.AddAsync(myDomainObject);
+                result = await conn.AddAsync(MyPoco);
             }
 
             Assert.Equal(1, result);
@@ -248,11 +248,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public async void AddRangeAsync()
         {
             const int quantity = 10;
-            var myDomainObjects = CreateDomainObjects(quantity);
+            var MyPocos = CreatePocos(quantity);
             int result;
             using (var conn = GetConn())
             {
-                result = await conn.AddRangeAsync(myDomainObjects);
+                result = await conn.AddRangeAsync(MyPocos);
             }
 
             Assert.Equal(quantity, result);
@@ -264,9 +264,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int result;
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                result = await conn.RemoveAsync<MyDomainObject>(entity.Id);
+                result = await conn.RemoveAsync<MyPoco>(entity.Id);
             }
 
             Assert.Equal(1, result);
@@ -278,7 +278,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int result;
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
                 result = await conn.RemoveAsync(entity);
             }
@@ -290,12 +290,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public async void RemoveAllByIdsAsync()
         {
             int result;
-            List<MyDomainObject> entities;
+            List<MyPoco> entities;
             using (var conn = GetConn())
             {
-                entities = CreateDomainObjects(10);
+                entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                result = await conn.RemoveAllAsync<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
+                result = await conn.RemoveAllAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
             }
 
             Assert.Equal(entities.Count, result);
@@ -305,10 +305,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public async void RemoveAllByEntitiesAsync()
         {
             int result;
-            List<MyDomainObject> entities;
+            List<MyPoco> entities;
             using (var conn = GetConn())
             {
-                entities = CreateDomainObjects(10);
+                entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
                 result = await conn.RemoveAllAsync(entities);
             }
@@ -322,8 +322,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int quantity, result;
             using (var conn = GetConn())
             {
-                quantity = (await conn.QueryAsync<MyDomainObject>()).Count();
-                result = await conn.RemoveAllAsync<MyDomainObject>();
+                quantity = (await conn.QueryAsync<MyPoco>()).Count();
+                result = await conn.RemoveAllAsync<MyPoco>();
             }
 
             Assert.Equal(quantity, result);
@@ -334,12 +334,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
                 entity.Name = "hahahahaha";
                 var modifyQuantity = await conn.UpdateAsync(entity);
                 Assert.Equal(1, modifyQuantity);
-                var result = await conn.FirstOrDefaultAsync<MyDomainObject>(entity.Id);
+                var result = await conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -351,12 +351,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entities = CreateDomainObjects(10);
+                var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
                 entities.ForEach(entity => entity.Name = "hahahahaha");
                 var modifyQuantity = await conn.UpdateAllAsync(entities);
                 Assert.Equal(modifyQuantity, entities.Count);
-                var results = await conn.QueryAsync<MyDomainObject>(entities.Select(entity => entity.Id).ToList());
+                var results = await conn.QueryAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
             }
@@ -368,9 +368,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                var result = await conn.FirstAsync<MyDomainObject>(entity.Id);
+                var result = await conn.FirstAsync<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -382,9 +382,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                var result = await conn.SingleAsync<MyDomainObject>(entity.Id);
+                var result = await conn.SingleAsync<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -396,9 +396,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                var result = await conn.FirstOrDefaultAsync<MyDomainObject>(entity.Id);
+                var result = await conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -410,9 +410,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entity = CreateDomainObject();
+                var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                var result = await conn.SingleOrDefaultAsync<MyDomainObject>(entity.Id);
+                var result = await conn.SingleOrDefaultAsync<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -424,9 +424,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entities = CreateDomainObjects(10);
+                var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                var results = await conn.QueryAsync<MyDomainObject>(entities.Select(e => e.Id).ToList());
+                var results = await conn.QueryAsync<MyPoco>(entities.Select(e => e.Id).ToList());
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
             }
@@ -437,9 +437,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         {
             using (var conn = GetConn())
             {
-                var entities = CreateDomainObjects(10);
+                var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                var results = await conn.QueryAsync<MyDomainObject>();
+                var results = await conn.QueryAsync<MyPoco>();
                 Assert.True(results.Count() >= entities.Count);
             }
         }
@@ -471,23 +471,34 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 "server=192.168.78.152;database=TestDB;User=sa;password=123qweasd,./;Connect Timeout=30;Pooling=true;Min Pool Size=100;");
         }
 
-        private MyDomainObject CreateDomainObject(SequentialGuidHelper.SequentialGuidType? guidType = null)
+        private MyPoco CreatePoco(SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
             var m = new Random().Next();
-            return new MyDomainObject
+            return new MyPoco
             {
                 Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
                 Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
                 Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
-                CreateTime = DateTime.UtcNow
+                CreateTime = DateTime.UtcNow,
+                Kids = new List<MyPoco>
+                {
+                    new MyPoco
+                    {
+                        Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+                        Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
+                        Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
+                        Birthday = DateTime.Now,
+                        CreateTime = DateTime.UtcNow
+                    }
+                }
             };
         }
 
-        private List<MyDomainObject> CreateDomainObjects(int quantity,
+        private List<MyPoco> CreatePocos(int quantity,
             SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
-            return Enumerable.Range(0, quantity).Select(p => CreateDomainObject(guidType)).ToList();
+            return Enumerable.Range(0, quantity).Select(p => CreatePoco(guidType)).ToList();
         }
     }
 }
