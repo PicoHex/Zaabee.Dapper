@@ -25,7 +25,7 @@ namespace Zaabee.Dapper.Extensions
         }
 
         #region Add
-        
+
         public static int Add<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
@@ -85,7 +85,7 @@ namespace Zaabee.Dapper.Extensions
                     transaction,
                     commandTimeout,
                     commandType);
-            
+
             return Remove<T>(connection, TypeMapInfoHelper.GetIdValue(persistentObject), transaction, commandTimeout,
                 commandType);
         }
@@ -96,7 +96,7 @@ namespace Zaabee.Dapper.Extensions
             return Remove(connection, id, typeof(T), transaction, commandTimeout, commandType);
         }
 
-        public static int Remove(this IDbConnection connection, object id,Type type,
+        public static int Remove(this IDbConnection connection, object id, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
@@ -109,7 +109,7 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return RemoveAll(connection, persistentObjects, typeof(T),transaction, commandTimeout, commandType);
+            return RemoveAll(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
         }
 
         public static int RemoveAll(this IDbConnection connection, IEnumerable persistentObjects, Type type,
@@ -152,10 +152,10 @@ namespace Zaabee.Dapper.Extensions
         public static int RemoveAll<T>(this IDbConnection connection,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return RemoveAll(connection, typeof(T),transaction, commandTimeout, commandType);
+            return RemoveAll(connection, typeof(T), transaction, commandTimeout, commandType);
         }
 
-        public static int RemoveAll(this IDbConnection connection,Type type,
+        public static int RemoveAll(this IDbConnection connection, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
@@ -166,56 +166,80 @@ namespace Zaabee.Dapper.Extensions
 
         #endregion
 
+        #region Update
+
         public static int Update<T>(this IDbConnection connection, T persistentObject,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            return Update(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
+        }
+
+        public static int Update(this IDbConnection connection, object persistentObject, Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
+            {
+                RemoveAll(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+                AddRange(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+            }
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetUpdateSql(typeof(T)), persistentObject, transaction, commandTimeout,
+            return connection.Execute(adapter.GetUpdateSql(type), persistentObject, transaction, commandTimeout,
                 commandType);
         }
 
         public static int UpdateAll<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            return UpdateAll(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
+        }
+
+        public static int UpdateAll(this IDbConnection connection, IEnumerable persistentObjects, Type type,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+            foreach (var persistentObject in persistentObjects)
+            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
+            {
+                RemoveAll(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+                AddRange(connection,
+                    (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
+                    transaction,
+                    commandTimeout,
+                    commandType);
+            }
+
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(adapter.GetUpdateSql(typeof(T)), persistentObjects, transaction, commandTimeout,
+            return connection.Execute(adapter.GetUpdateSql(type), persistentObjects, transaction, commandTimeout,
                 commandType);
         }
 
-        public static T Single<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return connection.QuerySingle<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId), new {Id = id},
-                transaction,
-                commandTimeout, commandType);
-        }
-
-        public static T First<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return connection.QueryFirst<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId), new {Id = id},
-                transaction,
-                commandTimeout, commandType);
-        }
-
-        public static T SingleOrDefault<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var adapter = GetSqlAdapter(connection);
-            return connection.QuerySingleOrDefault<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
-        }
+        #endregion
 
         public static T FirstOrDefault<T>(this IDbConnection connection, object id,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
-            return connection.QueryFirstOrDefault<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
+            var result = connection.QueryFirstOrDefault<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
                 new {Id = id},
                 transaction, commandTimeout, commandType);
+            return result;
         }
 
         public static IList<T> Query<T>(this IDbConnection connection, object ids,
@@ -229,7 +253,7 @@ namespace Zaabee.Dapper.Extensions
                 transaction, buffered, commandTimeout, commandType).ToList();
         }
 
-        public static IList<T> Query<T>(this IDbConnection connection,
+        public static IList<T> GetAll<T>(this IDbConnection connection,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
             CommandType? commandType = null)
         {

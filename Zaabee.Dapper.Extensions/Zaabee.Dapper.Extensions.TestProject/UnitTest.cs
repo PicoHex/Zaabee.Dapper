@@ -102,7 +102,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int quantity, result;
             using (var conn = _connFunc())
             {
-                quantity = conn.Query<MyPoco>().Count();
+                quantity = conn.GetAll<MyPoco>().Count();
                 result = conn.RemoveAll<MyPoco>();
             }
 
@@ -140,32 +140,6 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        public void First()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                var result = conn.First<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public void Single()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                var result = conn.Single<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
         public void FirstOrDefault()
         {
             using (var conn = _connFunc())
@@ -173,19 +147,6 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entity = CreatePoco();
                 conn.Add(entity);
                 var result = conn.FirstOrDefault<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public void SingleOrDefault()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                var result = conn.SingleOrDefault<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 Assert.Equal(firstJson, secondJson);
@@ -210,7 +171,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 var entities = CreatePocos(10);
                 conn.AddRange(entities);
-                var results = conn.Query<MyPoco>();
+                var results = conn.GetAll<MyPoco>();
                 Assert.True(results.Count() >= entities.Count);
             }
         }

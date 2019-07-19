@@ -70,27 +70,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void First()
-        {
-            _unitTest.First();
-        }
-
-        [Fact]
-        public void Single()
-        {
-            _unitTest.Single();
-        }
-
-        [Fact]
         public void FirstOrDefault()
         {
             _unitTest.FirstOrDefault();
-        }
-
-        [Fact]
-        public void SingleOrDefault()
-        {
-            _unitTest.SingleOrDefault();
         }
 
         [Fact]
