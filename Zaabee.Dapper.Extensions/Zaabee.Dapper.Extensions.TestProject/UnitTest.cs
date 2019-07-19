@@ -418,7 +418,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
         #endregion
 
-        private MyPoco CreatePoco(SequentialGuidHelper.SequentialGuidType? guidType = null)
+        private static MyPoco CreatePoco(SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
             var m = new Random().Next();
             return new MyPoco
@@ -428,7 +428,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
                 CreateTime = DateTime.UtcNow,
-                Kids = new List<MyPoco>
+                Nodes = new List<MyPoco>
                 {
                     new MyPoco
                     {
@@ -438,11 +438,20 @@ namespace Zaabee.Dapper.Extensions.TestProject
                         Birthday = DateTime.Now,
                         CreateTime = DateTime.UtcNow
                     }
+                },
+                Kids = new List<MySubPoco>
+                {
+                    new MySubPoco
+                    {
+                        Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+                        Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
+                        Remark = "This is a sub poco."
+                    }
                 }
             };
         }
 
-        private List<MyPoco> CreatePocos(int quantity,
+        private static List<MyPoco> CreatePocos(int quantity,
             SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
             return Enumerable.Range(0, quantity).Select(p => CreatePoco(guidType)).ToList();

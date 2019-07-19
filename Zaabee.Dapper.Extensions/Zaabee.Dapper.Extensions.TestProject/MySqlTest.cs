@@ -110,92 +110,92 @@ namespace Zaabee.Dapper.Extensions.TestProject
         #region async
 
         [Fact]
-        public async void AddAsync()
+        public void AddAsync()
         {
             _unitTest.AddAsync();
         }
 
         [Fact]
-        public async void AddRangeAsync()
+        public void AddRangeAsync()
         {
             _unitTest.AddRangeAsync();
         }
 
         [Fact]
-        public async void RemoveByIdAsync()
+        public void RemoveByIdAsync()
         {
             _unitTest.RemoveByIdAsync();
         }
 
         [Fact]
-        public async void RemoveByEntityAsync()
+        public void RemoveByEntityAsync()
         {
             _unitTest.RemoveByEntityAsync();
         }
 
         [Fact]
-        public async void RemoveAllByIdsAsync()
+        public void RemoveAllByIdsAsync()
         {
             _unitTest.RemoveAllByIdsAsync();
         }
 
         [Fact]
-        public async void RemoveAllByEntitiesAsync()
+        public void RemoveAllByEntitiesAsync()
         {
             _unitTest.RemoveAllByEntitiesAsync();
         }
 
         [Fact]
-        public async void RemoveAllAsync()
+        public void RemoveAllAsync()
         {
             _unitTest.RemoveAllAsync();
         }
 
         [Fact]
-        public async void UpdateAsync()
+        public void UpdateAsync()
         {
             _unitTest.UpdateAsync();
         }
 
         [Fact]
-        public async void UpdateAllAsync()
+        public void UpdateAllAsync()
         {
             _unitTest.UpdateAllAsync();
         }
 
 
         [Fact]
-        public async void FirstAsync()
+        public void FirstAsync()
         {
             _unitTest.FirstAsync();
         }
 
         [Fact]
-        public async void SingleAsync()
+        public void SingleAsync()
         {
             _unitTest.SingleAsync();
         }
 
         [Fact]
-        public async void FirstOrDefaultAsync()
+        public void FirstOrDefaultAsync()
         {
             _unitTest.FirstOrDefaultAsync();
         }
 
         [Fact]
-        public async void SingleOrDefaultAsync()
+        public void SingleOrDefaultAsync()
         {
             _unitTest.SingleOrDefaultAsync();
         }
 
         [Fact]
-        public async void QueryAsync()
+        public void QueryAsync()
         {
             _unitTest.QueryAsync();
         }
 
         [Fact]
-        public async void AllAsync()
+        public void AllAsync()
         {
             _unitTest.AllAsync();
         }
