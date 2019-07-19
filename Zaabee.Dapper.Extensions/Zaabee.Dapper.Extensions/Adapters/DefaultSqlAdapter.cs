@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -47,7 +45,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
                 var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
                 var fromString = $"DELETE FROM {typeMapInfo.TableName}";
                 var whereEqualIdString = $"WHERE {typeMapInfo.IdColumnName} = @Id";
-                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} = ANY(@Ids)";
+                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} = @Ids";
                 return new Dictionary<CriteriaType, string>
                 {
                     {
@@ -94,7 +92,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
                     $"SELECT {string.Join(",", propertyInfoDict.Select(pair => $"{pair.Key} AS {pair.Value.Name}"))}";
                 var fromString = $"FROM {typeMapInfo.TableName}";
                 var whereEqualIdString = $"WHERE {typeMapInfo.IdColumnName} = @Id";
-                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} IN (@Ids)";
+                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} = @Ids";
 
                 return new Dictionary<CriteriaType, string>
                 {

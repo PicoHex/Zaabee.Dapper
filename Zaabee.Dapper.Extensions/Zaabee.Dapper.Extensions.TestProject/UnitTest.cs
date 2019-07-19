@@ -1,26 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using MySql.Data.MySqlClient;
-using Npgsql;
 using Xunit;
 using Zaabee.NewtonsoftJson;
 using Zaabee.SequentialGuid;
 
 namespace Zaabee.Dapper.Extensions.TestProject
 {
-    public class UnitTest1
+    public class UnitTest
     {
+        private readonly Func<IDbConnection> _connFunc;
+        public UnitTest(Func<IDbConnection> connFunc)
+        {
+            _connFunc = connFunc;
+        }
+        
         #region sync
 
-        [Fact]
         public void Add()
         {
             var MyPoco = CreatePoco();
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 result = conn.Add(MyPoco);
             }
@@ -28,13 +30,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-        [Fact]
         public void AddRange()
         {
             const int quantity = 10;
             var MyPocos = CreatePocos(quantity);
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 result = conn.AddRange(MyPocos);
             }
@@ -42,11 +43,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(quantity, result);
         }
 
-        [Fact]
         public void RemoveById()
         {
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -56,11 +56,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-        [Fact]
         public void RemoveByEntity()
         {
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -70,12 +69,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-        [Fact]
         public void RemoveAllByIds()
         {
             int result;
             List<MyPoco> entities;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 entities = CreatePocos(10);
                 conn.AddRange(entities);
@@ -85,12 +83,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(entities.Count, result);
         }
 
-        [Fact]
         public void RemoveAllByEntities()
         {
             int result;
             List<MyPoco> entities;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 entities = CreatePocos(10);
                 conn.AddRange(entities);
@@ -100,11 +97,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(entities.Count, result);
         }
 
-        [Fact]
         public void RemoveAll()
         {
             int quantity, result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 quantity = conn.Query<MyPoco>().Count();
                 result = conn.RemoveAll<MyPoco>();
@@ -113,10 +109,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(quantity, result);
         }
 
-        [Fact]
         public void Update()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -130,10 +125,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void UpdateAll()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 conn.AddRange(entities);
@@ -146,10 +140,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void First()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -160,10 +153,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void Single()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -174,10 +166,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void FirstOrDefault()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -188,10 +179,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void SingleOrDefault()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
@@ -202,10 +192,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void Query()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 conn.AddRange(entities);
@@ -215,10 +204,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public void All()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 conn.AddRange(entities);
@@ -231,38 +219,35 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
         #region async
 
-        [Fact]
         public async void AddAsync()
         {
-            var MyPoco = CreatePoco();
+            var myPoco = CreatePoco();
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
-                result = await conn.AddAsync(MyPoco);
+                result = await conn.AddAsync(myPoco);
             }
 
             Assert.Equal(1, result);
         }
 
-        [Fact]
         public async void AddRangeAsync()
         {
             const int quantity = 10;
-            var MyPocos = CreatePocos(quantity);
+            var myPocos = CreatePocos(quantity);
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
-                result = await conn.AddRangeAsync(MyPocos);
+                result = await conn.AddRangeAsync(myPocos);
             }
 
             Assert.Equal(quantity, result);
         }
 
-        [Fact]
         public async void RemoveByIdAsync()
         {
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -272,11 +257,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-        [Fact]
         public async void RemoveByEntityAsync()
         {
             int result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -286,12 +270,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(1, result);
         }
 
-        [Fact]
         public async void RemoveAllByIdsAsync()
         {
             int result;
             List<MyPoco> entities;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
@@ -301,12 +284,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(entities.Count, result);
         }
 
-        [Fact]
         public async void RemoveAllByEntitiesAsync()
         {
             int result;
             List<MyPoco> entities;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
@@ -316,11 +298,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(entities.Count, result);
         }
 
-        [Fact]
         public async void RemoveAllAsync()
         {
             int quantity, result;
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 quantity = (await conn.QueryAsync<MyPoco>()).Count();
                 result = await conn.RemoveAllAsync<MyPoco>();
@@ -329,10 +310,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(quantity, result);
         }
 
-        [Fact]
         public async void UpdateAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -346,10 +326,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public async void UpdateAllAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
@@ -362,11 +341,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-
-        [Fact]
         public async void FirstAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -377,10 +354,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public async void SingleAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -391,10 +367,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public async void FirstOrDefaultAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -405,10 +380,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public async void SingleOrDefaultAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
@@ -419,10 +393,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public async void QueryAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
@@ -432,10 +405,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        [Fact]
         public async void AllAsync()
         {
-            using (var conn = GetConn())
+            using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
@@ -445,31 +417,6 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         #endregion
-
-        private IDbConnection GetConn()
-        {
-//            return GetPgSqlConn();
-//            return GetMySqlConn();
-            return GetMsSqlConn();
-        }
-
-        private IDbConnection GetPgSqlConn()
-        {
-            return new NpgsqlConnection(
-                "Host=192.168.78.152;Username=postgres;Password=123qweasd,./;Database=postgres");
-        }
-
-        private IDbConnection GetMySqlConn()
-        {
-            return new MySqlConnection(
-                "Database=TestDB;Data Source=192.168.78.152;User Id=root;Password=123qweasd,./;CharSet=utf8;port=3306");
-        }
-
-        private IDbConnection GetMsSqlConn()
-        {
-            return new SqlConnection(
-                "server=192.168.78.152;database=TestDB;User=sa;password=123qweasd,./;Connect Timeout=30;Pooling=true;Min Pool Size=100;");
-        }
 
         private MyPoco CreatePoco(SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
