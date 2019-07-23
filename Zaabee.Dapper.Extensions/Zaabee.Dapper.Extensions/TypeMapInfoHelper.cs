@@ -54,6 +54,14 @@ namespace Zaabee.Dapper.Extensions
                         Attribute.GetCustomAttributes(typeMapInfo.IdPropertyInfo).OfType<ColumnAttribute>()
                             .FirstOrDefault()
                             ?.Name ?? typeMapInfo.IdPropertyInfo.Name;
+                    
+                    typeMapInfo.ForeignKeyPropertyInfo = typeProperties.FirstOrDefault(property =>
+                        Attribute.GetCustomAttributes(property).OfType<ForeignKeyAttribute>().Any());
+                    if (typeMapInfo.ForeignKeyPropertyInfo != null)
+                        typeMapInfo.ForeignKeyColumnName =
+                            Attribute.GetCustomAttributes(typeMapInfo.ForeignKeyPropertyInfo)
+                                .OfType<ForeignKeyAttribute>()
+                                .First().Name;
 
                     foreach (var propertyInfo in typeProperties.Where(property =>
                         property != typeMapInfo.IdPropertyInfo))
@@ -67,12 +75,13 @@ namespace Zaabee.Dapper.Extensions
                                     $"{propertyInfo.PropertyType} generic type can only be single.");
                             if (genericType == type)
                                 continue;
-                            else
-                                typeMapInfo.PropertyTableDict.Add(propertyInfo, GetTypeMapInfo(genericType));
+                            typeMapInfo.PropertyTableDict.Add(propertyInfo, GetTypeMapInfo(genericType));
                         }
                         else
                             typeMapInfo.PropertyColumnDict.Add(Attribute.GetCustomAttributes(propertyInfo)
                                                                    .OfType<ColumnAttribute>().FirstOrDefault()?.Name ??
+                                                               Attribute.GetCustomAttributes(propertyInfo)
+                                                                   .OfType<ForeignKeyAttribute>().FirstOrDefault()?.Name??
                                                                propertyInfo.Name, propertyInfo);
                     }
 

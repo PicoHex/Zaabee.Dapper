@@ -2,65 +2,70 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Text;
+using Zaabee.Dapper.Extensions.Enums;
 
 namespace Zaabee.Dapper.Extensions.Adapters
 {
     public class DefaultSqlAdapter : ISqlAdapter
     {
-        private static readonly ConcurrentDictionary<Type, string> InsertSqlCache =
+        private readonly ConcurrentDictionary<Type, string> _insertSqlCache =
             new ConcurrentDictionary<Type, string>();
 
-        private static readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> DeleteSqlCache =
+        private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _deleteSqlCache =
             new ConcurrentDictionary<Type, Dictionary<CriteriaType, string>>();
 
-        private static readonly ConcurrentDictionary<Type, string> UpdateSqlDict =
+        private readonly ConcurrentDictionary<Type, string> _updateSqlDict =
             new ConcurrentDictionary<Type, string>();
 
-        private static readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> SelectSqlCache =
+        private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _selectSqlCache =
             new ConcurrentDictionary<Type, Dictionary<CriteriaType, string>>();
 
         public virtual string GetInsertSql(Type type)
         {
-            return InsertSqlCache.GetOrAdd(type, key =>
+            return _insertSqlCache.GetOrAdd(type, key =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                lock (type)
+                {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
 
-                var columnNames = new List<string> {typeMapInfo.IdColumnName};
-                columnNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Key));
+                    var columnNames = new List<string> {typeMapInfo.IdColumnName};
+                    columnNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Key));
 
-                var propertyNames = new List<string> {typeMapInfo.IdPropertyInfo.Name};
-                propertyNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Value.Name));
+                    var propertyNames = new List<string> {typeMapInfo.IdPropertyInfo.Name};
+                    propertyNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Value.Name));
 
-                var intoString = string.Join(",", columnNames);
-                var valueString = string.Join(",", propertyNames.Select(propertyName => $"@{propertyName}"));
-                return $"INSERT INTO {typeMapInfo.TableName} ({intoString}) VALUES ({valueString})";
+                    var intoString = string.Join(",", columnNames);
+                    var valueString = string.Join(",", propertyNames.Select(propertyName => $"@{propertyName}"));
+                    return $"INSERT INTO {typeMapInfo.TableName} ({intoString}) VALUES ({valueString})";
+                }
             });
         }
 
         public virtual string GetDeleteSql(Type type, CriteriaType conditionType)
         {
-            var sqls = DeleteSqlCache.GetOrAdd(type, typeKey =>
+            var sqls = _deleteSqlCache.GetOrAdd(type, typeKey =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                var fromString = $"DELETE FROM {typeMapInfo.TableName}";
-                var whereEqualIdString = $"WHERE {typeMapInfo.IdColumnName} = @Id";
-                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} = @Ids";
-                return new Dictionary<CriteriaType, string>
+                lock (type)
                 {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var fromString = $"DELETE FROM {typeMapInfo.TableName}";
+                    return new Dictionary<CriteriaType, string>
                     {
-                        CriteriaType.SingleId,
-                        $"{fromString} {whereEqualIdString}"
-                    },
-                    {
-                        CriteriaType.MultiIds,
-                        $"{fromString} {whereAnyIdsString}"
-                    },
-                    {
-                        CriteriaType.None,
-                        $"{fromString}"
-                    }
-                };
+                        {
+                            CriteriaType.None,
+                            $"{fromString}"
+                        },
+                        {
+                            CriteriaType.SingleId,
+                            $"{fromString} {FromStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                        },
+                        {
+                            CriteriaType.MultiId,
+                            $"{fromString} {FromStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                        }
+                    };
+                }
             });
 
             return sqls[conditionType];
@@ -68,50 +73,94 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string GetUpdateSql(Type type)
         {
-            return UpdateSqlDict.GetOrAdd(type,
-                key =>
+            return _updateSqlDict.GetOrAdd(type,key =>
                 {
-                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                    var setSql = string.Join(",",
-                        typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} = @{pair.Value.Name}"));
-                    return
-                        $"UPDATE {typeMapInfo.TableName} SET {setSql} WHERE {typeMapInfo.IdColumnName} = @{typeMapInfo.IdPropertyInfo.Name}";
+                    lock (type)
+                    {
+                        var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                        var setSql = string.Join(",",
+                            typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} = @{pair.Value.Name}"));
+                        return
+                            $"UPDATE {typeMapInfo.TableName} SET {setSql} {FromStringParse(typeMapInfo, CriteriaType.SingleId)}";
+                    }
                 });
         }
 
         public virtual string GetSelectSql(Type type, CriteriaType criteriaType)
         {
-            var typeSql = SelectSqlCache.GetOrAdd(type, key =>
+            var typeSql = _selectSqlCache.GetOrAdd(type, key =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                var propertyInfoDict = new Dictionary<string, PropertyInfo>
-                    {{typeMapInfo.IdColumnName, typeMapInfo.IdPropertyInfo}};
-                foreach (var pair in typeMapInfo.PropertyColumnDict)
-                    propertyInfoDict.Add(pair.Key, pair.Value);
-                var selectAllFieldsString =
-                    $"SELECT {string.Join(",", propertyInfoDict.Select(pair => $"{pair.Key} AS {pair.Value.Name}"))}";
-                var fromString = $"FROM {typeMapInfo.TableName}";
-                var whereEqualIdString = $"WHERE {typeMapInfo.IdColumnName} = @Id";
-                var whereAnyIdsString = $"WHERE {typeMapInfo.IdColumnName} = @Ids";
-
-                return new Dictionary<CriteriaType, string>
+                lock (type)
                 {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var selectAllFieldsString = SelectStringParse(typeMapInfo);
+                    return new Dictionary<CriteriaType, string>
                     {
-                        CriteriaType.SingleId,
-                        $"{selectAllFieldsString} {fromString} {whereEqualIdString}"
-                    },
-                    {
-                        CriteriaType.MultiIds,
-                        $"{selectAllFieldsString} {fromString} {whereAnyIdsString}"
-                    },
-                    {
-                        CriteriaType.None,
-                        $"{selectAllFieldsString} {fromString}"
-                    }
-                };
+                        {
+                            CriteriaType.None,
+                            $"{selectAllFieldsString} "
+                        },
+                        {
+                            CriteriaType.SingleId,
+                            $"{selectAllFieldsString} {FromStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                        },
+                        {
+                            CriteriaType.MultiId,
+                            $"{selectAllFieldsString} {FromStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                        }
+                    };
+                }
             });
 
             return typeSql[criteriaType];
+        }
+
+        public virtual string FormatColumnName(string columnName)
+        {
+            return $"'{columnName}'";
+        }
+
+        public virtual string SelectStringParse(TypeMapInfo typeMapInfo)
+        {
+            return $"SELECT {GetSelectFieldString(typeMapInfo)}{GetFromJoinString(typeMapInfo)}";
+        }
+
+        public virtual string FromStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
+        {
+            switch (criteriaType)
+            {
+                case CriteriaType.None:
+                    return string.Empty;
+                case CriteriaType.SingleId:
+                    return $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = @Id";
+                case CriteriaType.MultiId:
+                    return $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} IN @Ids";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(criteriaType), criteriaType, null);
+            }
+        }
+
+        public virtual StringBuilder GetSelectFieldString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
+        {
+            var fieldsString =
+                $"{typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
+            if (sb == null) sb = new StringBuilder(fieldsString);
+            else sb.Append($",{fieldsString}");
+            foreach (var pair in typeMapInfo.PropertyTableDict)
+                GetSelectFieldString(pair.Value, sb);
+            return sb;
+        }
+
+        public virtual StringBuilder GetFromJoinString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
+        {
+            sb = sb ?? new StringBuilder($"FROM {typeMapInfo.TableName} ");
+            foreach (var pair in typeMapInfo.PropertyTableDict)
+                sb.Append(
+                    $"LEFT JOIN {pair.Value.TableName} ON {typeMapInfo.TableName}.{typeMapInfo.IdPropertyInfo.Name} = {pair.Value.TableName}.{pair.Value.IdPropertyInfo.Name} ");
+
+            foreach (var pair in typeMapInfo.PropertyTableDict.Where(kv => kv.Value.PropertyTableDict.Any()))
+                GetFromJoinString(pair.Value, sb);
+            return sb;
         }
     }
 }

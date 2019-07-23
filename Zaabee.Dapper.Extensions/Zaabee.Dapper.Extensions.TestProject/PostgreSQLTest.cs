@@ -82,9 +82,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void All()
+        public void GetAll()
         {
-            _unitTest.All();
+            _unitTest.GetAll();
         }
 
         #endregion
@@ -145,35 +145,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
             _unitTest.UpdateAllAsync();
         }
 
-
-        [Fact]
-        public void FirstAsync()
-        {
-            _unitTest.FirstAsync();
-        }
-
-        [Fact]
-        public void SingleAsync()
-        {
-            _unitTest.SingleAsync();
-        }
-
         [Fact]
         public void FirstOrDefaultAsync()
         {
             _unitTest.FirstOrDefaultAsync();
-        }
-
-        [Fact]
-        public void SingleOrDefaultAsync()
-        {
-            _unitTest.SingleOrDefaultAsync();
-        }
-
-        [Fact]
-        public void QueryAsync()
-        {
-            _unitTest.QueryAsync();
         }
 
         [Fact]

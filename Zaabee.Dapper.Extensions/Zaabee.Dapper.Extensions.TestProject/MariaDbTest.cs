@@ -1,16 +1,16 @@
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using Xunit;
 
 namespace Zaabee.Dapper.Extensions.TestProject
 {
-    public class SqlServerTest
+    public class MariaDbTest
     {
         private readonly UnitTest _unitTest;
 
-        public SqlServerTest()
+        public MariaDbTest()
         {
-            _unitTest = new UnitTest(() => new SqlConnection(
-                "server=192.168.78.152;database=TestDB;User=sa;password=123qweasd,./;Connect Timeout=30;Pooling=true;Min Pool Size=100;"));
+            _unitTest = new UnitTest(() => new MySqlConnection(
+                "Database=TestDB;Data Source=192.168.78.152;User Id=root;Password=123qweasd,./;CharSet=utf8;port=3307"));
         }
 
         #region sync
@@ -82,7 +82,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void GetAllAll()
+        public void GetAll()
         {
             _unitTest.GetAll();
         }

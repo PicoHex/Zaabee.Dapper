@@ -15,7 +15,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
         [Column("birthday")] public DateTime Birthday { get; set; }
         [Column("create_time")] public DateTime CreateTime { get; set; }
         [JsonIgnore][Column("nodes")] public List<MyPoco> Nodes { get; set; }
-        [Column("kids")] public List<MySubPoco> Kids { get; set; }
+        [JsonIgnore][Column("kids")] public List<MySubPoco> Kids { get; set; }
     }
 
     public enum Gender : byte

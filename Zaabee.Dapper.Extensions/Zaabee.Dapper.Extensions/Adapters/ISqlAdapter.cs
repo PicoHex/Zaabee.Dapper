@@ -1,4 +1,5 @@
 using System;
+using Zaabee.Dapper.Extensions.Enums;
 
 namespace Zaabee.Dapper.Extensions.Adapters
 {

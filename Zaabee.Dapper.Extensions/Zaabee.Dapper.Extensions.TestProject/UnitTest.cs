@@ -37,7 +37,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int result;
             using (var conn = _connFunc())
             {
-                result = conn.AddRange(myPocos);
+                result = conn.AddRange<MyPoco>(myPocos);
             }
 
             Assert.Equal(quantity, result);
@@ -50,7 +50,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
-                result = conn.Remove<MyPoco>(entity.Id);
+                result = conn.RemoveById<MyPoco>(entity.Id);
             }
 
             Assert.Equal(1, result);
@@ -63,7 +63,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
-                result = conn.Remove(entity);
+                result = conn.RemoveByEntity(entity);
             }
 
             Assert.Equal(1, result);
@@ -76,8 +76,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
             using (var conn = _connFunc())
             {
                 entities = CreatePocos(10);
-                conn.AddRange(entities);
-                result = conn.RemoveAll<MyPoco>(entities.Select(entity => entity.Id).ToList());
+                conn.AddRange<MyPoco>(entities);
+                result = conn.RemoveByIds<MyPoco>(entities.Select(entity => entity.Id).ToList());
             }
 
             Assert.Equal(entities.Count, result);
@@ -90,8 +90,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
             using (var conn = _connFunc())
             {
                 entities = CreatePocos(10);
-                conn.AddRange(entities);
-                result = conn.RemoveAll(entities);
+                conn.AddRange<MyPoco>(entities);
+                result = conn.RemoveByEntities<MyPoco>(entities);
             }
 
             Assert.Equal(entities.Count, result);
@@ -118,6 +118,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 entity.Name = "hahahahaha";
                 var modifyQuantity = conn.Update(entity);
                 Assert.Equal(1, modifyQuantity);
+//                var result = conn.FirstOrDefault<MyPoco, MySubPoco, MyPoco>(entity.Id, (mypoco, mySubPoco) =>
+//                {
+//                    mypoco.Id = mySubPoco.MyPocoId;
+//                    return mypoco;
+//                });
                 var result = conn.FirstOrDefault<MyPoco>(entity.Id);
                 var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
                 var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
@@ -130,11 +135,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
             using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
-                conn.AddRange(entities);
+                conn.AddRange<MyPoco>(entities);
                 entities.ForEach(entity => entity.Name = "hahahahaha");
-                var modifyQuantity = conn.UpdateAll(entities);
+                var modifyQuantity = conn.UpdateAll<MyPoco>(entities);
                 Assert.Equal(modifyQuantity, entities.Count);
-                var results = conn.Query<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
+                var results = conn.Get<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
             }
@@ -158,19 +163,19 @@ namespace Zaabee.Dapper.Extensions.TestProject
             using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
-                conn.AddRange(entities);
-                var results = conn.Query<MyPoco>(entities.Select(e => e.Id).ToList());
+                conn.AddRange<MyPoco>(entities);
+                var results = conn.Get<MyPoco>(entities.Select(e => e.Id).ToList());
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
             }
         }
 
-        public void All()
+        public void GetAll()
         {
             using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
-                conn.AddRange(entities);
+                conn.AddRange<MyPoco>(entities);
                 var results = conn.GetAll<MyPoco>();
                 Assert.True(results.Count() >= entities.Count);
             }
@@ -264,7 +269,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             int quantity, result;
             using (var conn = _connFunc())
             {
-                quantity = (await conn.QueryAsync<MyPoco>()).Count();
+                quantity = (await conn.GetAllAsync<MyPoco>()).Count();
                 result = await conn.RemoveAllAsync<MyPoco>();
             }
 
@@ -296,35 +301,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 entities.ForEach(entity => entity.Name = "hahahahaha");
                 var modifyQuantity = await conn.UpdateAllAsync(entities);
                 Assert.Equal(modifyQuantity, entities.Count);
-                var results = await conn.QueryAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
+                var results = await conn.GetAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
                 Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
                     results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
-            }
-        }
-
-        public async void FirstAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                var result = await conn.FirstAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public async void SingleAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                var result = await conn.SingleAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                Assert.Equal(firstJson, secondJson);
             }
         }
 
@@ -341,38 +320,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
             }
         }
 
-        public async void SingleOrDefaultAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                var result = await conn.SingleOrDefaultAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public async void QueryAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entities = CreatePocos(10);
-                await conn.AddRangeAsync(entities);
-                var results = await conn.QueryAsync<MyPoco>(entities.Select(e => e.Id).ToList());
-                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
-                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
-            }
-        }
-
         public async void AllAsync()
         {
             using (var conn = _connFunc())
             {
                 var entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                var results = await conn.QueryAsync<MyPoco>();
+                var results = await conn.GetAllAsync<MyPoco>();
                 Assert.True(results.Count() >= entities.Count);
             }
         }
@@ -382,9 +336,10 @@ namespace Zaabee.Dapper.Extensions.TestProject
         private static MyPoco CreatePoco(SequentialGuidHelper.SequentialGuidType? guidType = null)
         {
             var m = new Random().Next();
+            var id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value);
             return new MyPoco
             {
-                Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+                Id = id,
                 Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
                 Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
@@ -405,6 +360,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
                     new MySubPoco
                     {
                         Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+                        MyPocoId = id,
                         Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
                         Remark = "This is a sub poco."
                     }
