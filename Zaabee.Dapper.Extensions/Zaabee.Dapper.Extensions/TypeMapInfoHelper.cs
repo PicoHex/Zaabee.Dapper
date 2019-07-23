@@ -31,13 +31,14 @@ namespace Zaabee.Dapper.Extensions
                 {
                     var typeMapInfo = new TypeMapInfo
                     {
-                        Type = type,
+                        TypeInfo = type.GetTypeInfo(),
                         TableName =
                             Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ??
                             type.Name
                     };
 
-                    var typeProperties = type.GetProperties();
+                    var typeProperties = type.GetProperties().Where(p =>
+                        !Attribute.GetCustomAttributes(p).OfType<NotMappedAttribute>().Any()).ToList();
 
                     typeMapInfo.IdPropertyInfo = typeProperties.FirstOrDefault(property =>
                         Attribute.GetCustomAttributes(property).OfType<KeyAttribute>().Any() ||

@@ -10,7 +10,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return $"\"{columnName}\"";
         }
 
-        public override string FromStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
+        public override string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
         {
             switch (criteriaType)
             {

@@ -58,11 +58,11 @@ namespace Zaabee.Dapper.Extensions.Adapters
                         },
                         {
                             CriteriaType.SingleId,
-                            $"{fromString} {FromStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                            $"{fromString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
                         },
                         {
                             CriteriaType.MultiId,
-                            $"{fromString} {FromStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                            $"{fromString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
                         }
                     };
                 }
@@ -81,7 +81,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
                         var setSql = string.Join(",",
                             typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} = @{pair.Value.Name}"));
                         return
-                            $"UPDATE {typeMapInfo.TableName} SET {setSql} {FromStringParse(typeMapInfo, CriteriaType.SingleId)}";
+                            $"UPDATE {typeMapInfo.TableName} SET {setSql} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}";
                     }
                 });
         }
@@ -93,20 +93,49 @@ namespace Zaabee.Dapper.Extensions.Adapters
                 lock (type)
                 {
                     var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                    var selectAllFieldsString = SelectStringParse(typeMapInfo);
+                    var selectString = SelectStringParse(typeMapInfo);
                     return new Dictionary<CriteriaType, string>
                     {
                         {
                             CriteriaType.None,
-                            $"{selectAllFieldsString} "
+                            $"{selectString} "
                         },
                         {
                             CriteriaType.SingleId,
-                            $"{selectAllFieldsString} {FromStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
                         },
                         {
                             CriteriaType.MultiId,
-                            $"{selectAllFieldsString} {FromStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                        }
+                    };
+                }
+            });
+
+            return typeSql[criteriaType];
+        }
+
+        public virtual string GetComplexSelectSql(Type type, CriteriaType criteriaType)
+        {
+            var typeSql = _selectSqlCache.GetOrAdd(type, key =>
+            {
+                lock (type)
+                {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var selectString = ComplexSelectStringParse(typeMapInfo);
+                    return new Dictionary<CriteriaType, string>
+                    {
+                        {
+                            CriteriaType.None,
+                            $"{selectString} "
+                        },
+                        {
+                            CriteriaType.SingleId,
+                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                        },
+                        {
+                            CriteriaType.MultiId,
+                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
                         }
                     };
                 }
@@ -122,10 +151,17 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string SelectStringParse(TypeMapInfo typeMapInfo)
         {
-            return $"SELECT {GetSelectFieldString(typeMapInfo)}{GetFromJoinString(typeMapInfo)}";
+            var selectString = $"SELECT {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
+            var fromString = $"FROM {typeMapInfo.TableName} ";
+            return $"{selectString}{fromString}";
         }
 
-        public virtual string FromStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
+        public virtual string ComplexSelectStringParse(TypeMapInfo typeMapInfo)
+        {
+            return $"SELECT {GetComplexSelectFieldString(typeMapInfo)}{GetFromJoinString(typeMapInfo)}";
+        }
+
+        public virtual string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
         {
             switch (criteriaType)
             {
@@ -140,14 +176,14 @@ namespace Zaabee.Dapper.Extensions.Adapters
             }
         }
 
-        public virtual StringBuilder GetSelectFieldString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
+        public virtual StringBuilder GetComplexSelectFieldString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
         {
             var fieldsString =
                 $"{typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
             if (sb == null) sb = new StringBuilder(fieldsString);
             else sb.Append($",{fieldsString}");
             foreach (var pair in typeMapInfo.PropertyTableDict)
-                GetSelectFieldString(pair.Value, sb);
+                GetComplexSelectFieldString(pair.Value, sb);
             return sb;
         }
 
