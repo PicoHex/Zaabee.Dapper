@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
-namespace Zaabee.Dapper.Extensions.TestProject
+namespace Zaabee.Dapper.Extensions.TestProject.POCOs
 {
     [Table("my_poco")]
     public class MyPoco
@@ -14,7 +14,6 @@ namespace Zaabee.Dapper.Extensions.TestProject
         [Column("gender")] public Gender Gender { get; set; }
         [Column("birthday")] public DateTime Birthday { get; set; }
         [Column("create_time")] public DateTime CreateTime { get; set; }
-        [JsonIgnore][Column("nodes")] public List<MyPoco> Nodes { get; set; }
         [JsonIgnore][Column("kids")] public List<MySubPoco> Kids { get; set; }
     }
 

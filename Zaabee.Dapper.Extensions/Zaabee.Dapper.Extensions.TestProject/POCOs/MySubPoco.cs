@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Zaabee.Dapper.Extensions.TestProject
+namespace Zaabee.Dapper.Extensions.TestProject.POCOs
 {
     [Table("my_sub_poco")]
     public class MySubPoco

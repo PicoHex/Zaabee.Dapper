@@ -9,6 +9,5 @@ namespace Zaabee.Dapper.Extensions.Adapters
         string GetDeleteSql(Type type, CriteriaType conditionType);
         string GetUpdateSql(Type type);
         string GetSelectSql(Type type, CriteriaType criteriaType);
-        string GetComplexSelectSql(Type type, CriteriaType criteriaType);
     }
 }

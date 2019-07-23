@@ -5,12 +5,12 @@ namespace Zaabee.Dapper.Extensions.Adapters
 {
     public class PostgresAdapter : DefaultSqlAdapter
     {
-        public override string FormatColumnName(string columnName)
+        protected override string FormatColumnName(string columnName)
         {
             return $"\"{columnName}\"";
         }
 
-        public override string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
+        protected override string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
         {
             switch (criteriaType)
             {

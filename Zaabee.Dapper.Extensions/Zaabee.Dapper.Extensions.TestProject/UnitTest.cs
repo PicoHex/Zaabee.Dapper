@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Xunit;
+using Zaabee.Dapper.Extensions.TestProject.POCOs;
 using Zaabee.NewtonsoftJson;
 using Zaabee.SequentialGuid;
 
@@ -344,17 +345,6 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
                 CreateTime = DateTime.UtcNow,
-                Nodes = new List<MyPoco>
-                {
-                    new MyPoco
-                    {
-                        Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
-                        Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
-                        Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
-                        Birthday = DateTime.Now,
-                        CreateTime = DateTime.UtcNow
-                    }
-                },
                 Kids = new List<MySubPoco>
                 {
                     new MySubPoco

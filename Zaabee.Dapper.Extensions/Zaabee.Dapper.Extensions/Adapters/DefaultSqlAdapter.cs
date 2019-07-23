@@ -73,17 +73,17 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string GetUpdateSql(Type type)
         {
-            return _updateSqlDict.GetOrAdd(type,key =>
+            return _updateSqlDict.GetOrAdd(type, key =>
+            {
+                lock (type)
                 {
-                    lock (type)
-                    {
-                        var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                        var setSql = string.Join(",",
-                            typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} = @{pair.Value.Name}"));
-                        return
-                            $"UPDATE {typeMapInfo.TableName} SET {setSql} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}";
-                    }
-                });
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var setSql = string.Join(",",
+                        typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} = @{pair.Value.Name}"));
+                    return
+                        $"UPDATE {typeMapInfo.TableName} SET {setSql} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}";
+                }
+            });
         }
 
         public virtual string GetSelectSql(Type type, CriteriaType criteriaType)
@@ -144,24 +144,25 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return typeSql[criteriaType];
         }
 
-        public virtual string FormatColumnName(string columnName)
+        protected virtual string FormatColumnName(string columnName)
         {
             return $"'{columnName}'";
         }
 
-        public virtual string SelectStringParse(TypeMapInfo typeMapInfo)
+        protected virtual string SelectStringParse(TypeMapInfo typeMapInfo)
         {
-            var selectString = $"SELECT {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
+            var selectString =
+                $"SELECT {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
             var fromString = $"FROM {typeMapInfo.TableName} ";
             return $"{selectString}{fromString}";
         }
 
-        public virtual string ComplexSelectStringParse(TypeMapInfo typeMapInfo)
+        protected virtual string ComplexSelectStringParse(TypeMapInfo typeMapInfo)
         {
             return $"SELECT {GetComplexSelectFieldString(typeMapInfo)}{GetFromJoinString(typeMapInfo)}";
         }
 
-        public virtual string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
+        protected virtual string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
         {
             switch (criteriaType)
             {
@@ -176,7 +177,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
             }
         }
 
-        public virtual StringBuilder GetComplexSelectFieldString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
+        protected virtual StringBuilder GetComplexSelectFieldString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
         {
             var fieldsString =
                 $"{typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
@@ -187,7 +188,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return sb;
         }
 
-        public virtual StringBuilder GetFromJoinString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
+        protected virtual StringBuilder GetFromJoinString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
         {
             sb = sb ?? new StringBuilder($"FROM {typeMapInfo.TableName} ");
             foreach (var pair in typeMapInfo.PropertyTableDict)
