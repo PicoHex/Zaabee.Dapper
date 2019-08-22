@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Zaabee.Dapper.Lambda.TestProject.Entities
 {
-    [SqlLamTable(Name = "Orders")]
+    [Table("Orders")]
     public class Order
     {
         [SqlLamColumn(Name = "Order ID")]

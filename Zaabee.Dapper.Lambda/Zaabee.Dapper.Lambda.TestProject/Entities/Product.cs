@@ -1,7 +1,8 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Zaabee.Dapper.Lambda.TestProject.Entities
 {
-    [SqlLamTable(Name = "Products")]
+    [Table("Products")]
     public class Product
     {
         [SqlLamColumn(Name = "Product ID")]

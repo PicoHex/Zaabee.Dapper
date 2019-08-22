@@ -1,6 +1,8 @@
-﻿namespace Zaabee.Dapper.Lambda.TestProject.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Zaabee.Dapper.Lambda.TestProject.Entities
 {
-    [SqlLamTable(Name = "Order Details")]
+    [Table("Order Details")]
     public class OrderDetails
     {
         [SqlLamColumn(Name = "Order ID")]

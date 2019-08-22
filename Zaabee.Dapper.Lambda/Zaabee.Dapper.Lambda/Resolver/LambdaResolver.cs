@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using Zaabee.Dapper.Lambda.Builder;
@@ -49,7 +50,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
 
         public static string GetTableName(Type type)
         {
-            var column = type.GetCustomAttributes(false).OfType<SqlLamTableAttribute>().FirstOrDefault();
+            var column = type.GetCustomAttributes(false).OfType<TableAttribute>().FirstOrDefault();
             return column != null ? column.Name : type.Name;
         }
 
