@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Reflection;
 using Dapper;
 
@@ -6,7 +7,7 @@ namespace Zaabee.Dapper.Lambda.TestProject.Infrastructure
 {
     static class Bootstrap
     {
-        public const string CONNECTION_STRING = @"Data Source=AppData\Northwind.sdf";
+        public const string ConnectionString = @"Data Source=AppData\Northwind.sdf";
 
         public static void Initialize()
         {
@@ -30,7 +31,7 @@ namespace Zaabee.Dapper.Lambda.TestProject.Infrastructure
                     (type, columnName) =>
                         type.GetProperties().FirstOrDefault(prop =>
                             prop.GetCustomAttributes(false)
-                            .OfType<SqlLamColumnAttribute>()
+                            .OfType<ColumnAttribute>()
                             .Any(attr => attr.Name == columnName))
                         )
                     );

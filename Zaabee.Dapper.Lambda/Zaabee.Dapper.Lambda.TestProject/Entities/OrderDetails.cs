@@ -5,10 +5,10 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
     [Table("Order Details")]
     public class OrderDetails
     {
-        [SqlLamColumn(Name = "Order ID")]
+        [Column( "Order ID")]
         public int OrderId { get; set; }
 
-        [SqlLamColumn(Name = "Product ID")]
+        [Column( "Product ID")]
         public int ProductId { get; set; }
     }
 }

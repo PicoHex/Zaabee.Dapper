@@ -5,7 +5,7 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
     [Table("Products")]
     public class Product
     {
-        [SqlLamColumn(Name = "Product ID")]
+        [Column( "Product ID")]
         public int ProductId { get; set; }
 
         public int GetProductId()
@@ -13,25 +13,25 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
             return ProductId;
         }
         
-        [SqlLamColumn(Name = "Product Name")]
+        [Column( "Product Name")]
         public string ProductName { get; set; }
 
-        [SqlLamColumn(Name = "English Name")]
+        [Column( "English Name")]
         public string EnglishName { get; set; }
         
-        [SqlLamColumn(Name = "Category ID")]
+        [Column( "Category ID")]
         public int CategoryId { get; set; }
 
-        [SqlLamColumn(Name = "Unit Price")]
+        [Column( "Unit Price")]
         public double UnitPrice { get; set; }
 
-        [SqlLamColumn(Name = "Reorder Level")]
+        [Column( "Reorder Level")]
         public int ReorderLevel { get; set; }
 
-        [SqlLamColumn(Name = "Reorder Level")]
+        [Column( "Reorder Level")]
         public int? NullableReorderLevel { get { return ReorderLevel; } }
 
-        [SqlLamColumn(Name = "Discontinued")]
+        [Column( "Discontinued")]
         public bool Discontinued { get; set; }
 
         public Category Category { get; set; }

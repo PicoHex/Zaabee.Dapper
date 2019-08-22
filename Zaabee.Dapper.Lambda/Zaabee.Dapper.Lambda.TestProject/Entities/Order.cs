@@ -7,19 +7,19 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
     [Table("Orders")]
     public class Order
     {
-        [SqlLamColumn(Name = "Order ID")]
+        [Column( "Order ID")]
         public int OrderId { get; set; }
 
-        [SqlLamColumn(Name = "Ship Name")]
+        [Column( "Ship Name")]
         public string ShipName { get; set; }
 
-        [SqlLamColumn(Name = "Ship Region")]
+        [Column( "Ship Region")]
         public string ShipRegion { get; set; }
 
-        [SqlLamColumn(Name = "Required Date")]
+        [Column( "Required Date")]
         public DateTime RequiredDate { get; set; }
 
-        [SqlLamColumn(Name = "Shipped Date")]
+        [Column( "Shipped Date")]
         public DateTime ShippedDate { get; set; }
 
         public List<Product> Products { get; set; }

@@ -10,7 +10,7 @@ namespace Zaabee.Dapper.Lambda.TestProject.Infrastructure
         {
             Bootstrap.Initialize();
 
-            Connection = new SqlConnection(Bootstrap.CONNECTION_STRING);
+            Connection = new SqlConnection(Bootstrap.ConnectionString);
             Connection.Open();
         }
 

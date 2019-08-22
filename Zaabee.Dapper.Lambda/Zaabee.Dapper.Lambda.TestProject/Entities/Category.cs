@@ -6,7 +6,7 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
     [Table("Categories")]
     public class Category
     {
-        [SqlLamColumn(Name = "Category ID")]
+        [Column("Category ID")]
         public int CategoryId { get; set; }
 
         public int GetCategoryId()
@@ -14,7 +14,7 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
             return CategoryId;
         }
         
-        [SqlLamColumn(Name = "Category Name")]
+        [Column("Category Name")]
         public string CategoryName { get; set; }
 
         public List<Product> Products { get; set; }

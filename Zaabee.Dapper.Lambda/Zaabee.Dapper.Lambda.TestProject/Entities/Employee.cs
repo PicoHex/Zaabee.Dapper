@@ -6,22 +6,22 @@ namespace Zaabee.Dapper.Lambda.TestProject.Entities
     [Table("Employees")]
     public class Employee
     {
-        [SqlLamColumn(Name = "Employee ID")]
+        [Column("Employee ID")]
         public int EmployeeId { get; set; }
 
-        [SqlLamColumn(Name = "First Name")]
+        [Column("First Name")]
         public string FirstName { get; set; }
 
-        [SqlLamColumn(Name = "Last Name")]
+        [Column("Last Name")]
         public string LastName { get; set; }
 
-        [SqlLamColumn(Name = "City")]
+        [Column("City")]
         public string City { get; set; }
 
-        [SqlLamColumn(Name = "Title")]
+        [Column("Title")]
         public string Title { get; set; }
 
-        [SqlLamColumn(Name = "Birth Date")]
+        [Column("Birth Date")]
         public DateTime BirthDate { get; set; }
     }
 }

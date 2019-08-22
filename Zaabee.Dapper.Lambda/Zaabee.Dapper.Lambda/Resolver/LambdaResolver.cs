@@ -39,7 +39,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         public static string GetColumnName(Expression expression)
         {
             var member = GetMemberExpression(expression);
-            var column = member.Member.GetCustomAttributes(false).OfType<SqlLamColumnAttribute>().FirstOrDefault();
+            var column = member.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
             return column != null ? column.Name : member.Member.Name;
         }
 
