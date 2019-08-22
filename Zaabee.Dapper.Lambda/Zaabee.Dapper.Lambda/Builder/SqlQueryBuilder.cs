@@ -16,58 +16,48 @@ namespace Zaabee.Dapper.Lambda.Builder
     /// </summary>
     public partial class SqlQueryBuilder
     {
-        internal ISqlAdapter Adapter { get; set; }
+        private ISqlAdapter Adapter { get; set; }
 
-        private const string PARAMETER_PREFIX = "Param";
+        private const string ParameterPrefix = "Param";
 
-        private readonly List<string> _tableNames = new List<string>();
-        private readonly List<string> _joinExpressions = new List<string>();
-        private readonly List<string> _selectionList = new List<string>();
-        private readonly List<string> _conditions = new List<string>();
-        private readonly List<string> _sortList = new List<string>();
-        private readonly List<string> _groupingList = new List<string>();
-        private readonly List<string> _havingConditions = new List<string>();
-        private readonly List<string> _splitColumns = new List<string>();
-        private int _paramIndex;
+        public List<string> TableNames { get; } = new List<string>();
 
-        public List<string> TableNames { get { return _tableNames; } }
-        public List<string> JoinExpressions { get { return _joinExpressions; } }
-        public List<string> SelectionList { get { return _selectionList; } }
-        public List<string> WhereConditions { get { return _conditions; } }
-        public List<string> OrderByList { get { return _sortList; } }
-        public List<string> GroupByList { get { return _groupingList; } }
-        public List<string> HavingConditions { get { return _havingConditions; } }
-        public List<string> SplitColumns { get { return _splitColumns; } }
-        public int CurrentParamIndex { get { return _paramIndex; } }
+        public List<string> JoinExpressions { get; } = new List<string>();
+
+        public List<string> SelectionList { get; } = new List<string>();
+
+        public List<string> WhereConditions { get; } = new List<string>();
+
+        public List<string> OrderByList { get; } = new List<string>();
+
+        public List<string> GroupByList { get; } = new List<string>();
+
+        public List<string> HavingConditions { get; } = new List<string>();
+
+        public List<string> SplitColumns { get; } = new List<string>();
+
+        public int CurrentParamIndex { get; private set; }
 
         private string Source
         {
             get
             {
-                var joinExpression = string.Join(" ", _joinExpressions);
-                return string.Format("{0} {1}", Adapter.Table(_tableNames.First()), joinExpression);
+                var joinExpression = string.Join(" ", JoinExpressions);
+                return $"{Adapter.Table(TableNames.First())} {joinExpression}";
             }
         }
 
-        private string Selection
-        {
-            get
-            {
-                if (_selectionList.Count == 0)
-                    return string.Format("{0}.*", Adapter.Table(_tableNames.First()));
-                else
-                    return string.Join(", ", _selectionList);
-            }
-        }
+        private string Selection => SelectionList.Count == 0
+            ? $"{Adapter.Table(TableNames.First())}.*"
+            : string.Join(", ", SelectionList);
 
         private string Conditions
         {
             get
             {
-                if (_conditions.Count == 0)
+                if (WhereConditions.Count == 0)
                     return "";
-                else
-                    return "WHERE " + string.Join("", _conditions);
+                return "WHERE " + string.Join("", WhereConditions);
             }
         }
 
@@ -75,10 +65,9 @@ namespace Zaabee.Dapper.Lambda.Builder
         {
             get
             {
-                if (_sortList.Count == 0)
+                if (OrderByList.Count == 0)
                     return "";
-                else
-                    return "ORDER BY " + string.Join(", ", _sortList);
+                return "ORDER BY " + string.Join(", ", OrderByList);
             }
         }
 
@@ -86,10 +75,9 @@ namespace Zaabee.Dapper.Lambda.Builder
         {
             get
             {
-                if (_groupingList.Count == 0)
+                if (GroupByList.Count == 0)
                     return "";
-                else
-                    return "GROUP BY " + string.Join(", ", _groupingList);
+                return "GROUP BY " + string.Join(", ", GroupByList);
             }
         }
 
@@ -97,53 +85,47 @@ namespace Zaabee.Dapper.Lambda.Builder
         {
             get
             {
-                if (_havingConditions.Count == 0)
+                if (HavingConditions.Count == 0)
                     return "";
-                else
-                    return "HAVING " + string.Join(" ", _havingConditions);
+                return "HAVING " + string.Join(" ", HavingConditions);
             }
         }
 
-        public IDictionary<string, object> Parameters { get; private set; }               
+        public IDictionary<string, object> Parameters { get; private set; }
 
-        public string QueryString
-        {
-            get { return Adapter.QueryString(Selection, Source, Conditions, Grouping, Having, Order); }
-        }
+        public string QueryString => Adapter.QueryString(Selection, Source, Conditions, Grouping, Having, Order);
 
         public string QueryStringPage(int pageSize, int? pageNumber = null)
         {
-            if (pageNumber.HasValue)
-            {
-                if (_sortList.Count == 0)
-                    throw new Exception("Pagination requires the ORDER BY statement to be specified");
+            if (!pageNumber.HasValue) return Adapter.QueryStringPage(Source, Selection, Conditions, Order, pageSize);
+            if (OrderByList.Count == 0)
+                throw new Exception("Pagination requires the ORDER BY statement to be specified");
 
-                return Adapter.QueryStringPage(Source, Selection, Conditions, Order, pageSize, pageNumber.Value);
-            }
-            
-            return Adapter.QueryStringPage(Source, Selection, Conditions, Order, pageSize);
+            return Adapter.QueryStringPage(Source, Selection, Conditions, Order, pageSize, pageNumber.Value);
         }
 
         internal SqlQueryBuilder(string tableName, ISqlAdapter adapter)
         {
-            _tableNames.Add(tableName);
+            TableNames.Add(tableName);
             Adapter = adapter;
             Parameters = new ExpandoObject();
-            _paramIndex = 0;
+            CurrentParamIndex = 0;
         }
 
         #region helpers
+
         private string NextParamId()
         {
-            ++_paramIndex;
-            return PARAMETER_PREFIX + _paramIndex.ToString(CultureInfo.InvariantCulture);
+            ++CurrentParamIndex;
+            return ParameterPrefix + CurrentParamIndex.ToString(CultureInfo.InvariantCulture);
         }
 
         private void AddParameter(string key, object value)
         {
-            if(!Parameters.ContainsKey(key))
+            if (!Parameters.ContainsKey(key))
                 Parameters.Add(key, value);
         }
+
         #endregion
     }
 }

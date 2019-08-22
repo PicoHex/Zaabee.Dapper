@@ -13,58 +13,55 @@ namespace Zaabee.Dapper.Lambda.Resolver
     {
         public void ResolveQuery<T>(Expression<Func<T, bool>> expression)
         {
-            var expressionTree = ResolveQuery((dynamic)expression.Body);
+            var expressionTree = ResolveQuery((dynamic) expression.Body);
             BuildSql(expressionTree);
         }
 
         private Node ResolveQuery(ConstantExpression constantExpression)
         {
-            return new ValueNode() { Value = constantExpression.Value};
+            return new ValueNode {Value = constantExpression.Value};
         }
 
         private Node ResolveQuery(UnaryExpression unaryExpression)
         {
-            return new SingleOperationNode()
-                        {
-                            Operator = unaryExpression.NodeType,
-                            Child = ResolveQuery((dynamic) unaryExpression.Operand)
-                        };
+            return new SingleOperationNode
+            {
+                Operator = unaryExpression.NodeType,
+                Child = ResolveQuery((dynamic) unaryExpression.Operand)
+            };
         }
 
         private Node ResolveQuery(BinaryExpression binaryExpression)
         {
             return new OperationNode
-                       {
-                           Left = ResolveQuery((dynamic) binaryExpression.Left),
-                           Operator = binaryExpression.NodeType,
-                           Right = ResolveQuery((dynamic) binaryExpression.Right)
-                       };
+            {
+                Left = ResolveQuery((dynamic) binaryExpression.Left),
+                Operator = binaryExpression.NodeType,
+                Right = ResolveQuery((dynamic) binaryExpression.Right)
+            };
         }
 
         private Node ResolveQuery(MethodCallExpression callExpression)
         {
-            LikeMethod callFunction;
-            if (Enum.TryParse(callExpression.Method.Name, true, out callFunction))
+            if (Enum.TryParse(callExpression.Method.Name, true, out LikeMethod callFunction))
             {
                 var member = callExpression.Object as MemberExpression;
-                var fieldValue = (string)GetExpressionValue(callExpression.Arguments.First());
+                var fieldValue = (string) GetExpressionValue(callExpression.Arguments.First());
 
                 return new LikeNode()
-                           {
-                               MemberNode = new MemberNode()
-                                       {
-                                           TableName = GetTableName(member),
-                                           FieldName = GetColumnName(callExpression.Object)
-                                       },
-                               Method = callFunction,
-                               Value = fieldValue
-                           };
+                {
+                    MemberNode = new MemberNode()
+                    {
+                        TableName = GetTableName(member),
+                        FieldName = GetColumnName(callExpression.Object)
+                    },
+                    Method = callFunction,
+                    Value = fieldValue
+                };
             }
-            else
-            {
-                var value = ResolveMethodCall(callExpression);
-                return new ValueNode() { Value = value };
-            }                
+
+            var value = ResolveMethodCall(callExpression);
+            return new ValueNode() {Value = value};
         }
 
         private Node ResolveQuery(MemberExpression memberExpression, MemberExpression rootExpression = null)
@@ -74,7 +71,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
             {
                 case ExpressionType.Parameter:
                     return new MemberNode()
-                               {TableName = GetTableName(rootExpression), FieldName = GetColumnName(rootExpression)};
+                        {TableName = GetTableName(rootExpression), FieldName = GetColumnName(rootExpression)};
                 case ExpressionType.MemberAccess:
                     return ResolveQuery(memberExpression.Expression as MemberExpression, rootExpression);
                 case ExpressionType.Call:
@@ -82,7 +79,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
                     return new ValueNode() {Value = GetExpressionValue(rootExpression)};
                 default:
                     throw new ArgumentException("Expected member expression");
-            }          
+            }
         }
 
         #region Helpers
@@ -92,7 +89,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
             switch (expression.NodeType)
             {
                 case ExpressionType.Constant:
-                    return (expression as ConstantExpression).Value;
+                    return (expression as ConstantExpression)?.Value;
                 case ExpressionType.Call:
                     return ResolveMethodCall(expression as MethodCallExpression);
                 case ExpressionType.MemberAccess:
@@ -128,7 +125,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
 
         private void ResolveQuery(Expression expression)
         {
-            throw new ArgumentException(string.Format("The provided expression '{0}' is currently not supported", expression.NodeType));
+            throw new ArgumentException($"The provided expression '{expression.NodeType}' is currently not supported");
         }
 
         #endregion

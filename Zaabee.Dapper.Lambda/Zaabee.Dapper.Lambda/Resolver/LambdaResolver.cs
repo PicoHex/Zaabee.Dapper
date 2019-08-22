@@ -10,15 +10,16 @@ namespace Zaabee.Dapper.Lambda.Resolver
 {
     partial class LambdaResolver
     {
-        private Dictionary<ExpressionType, string> _operationDictionary = new Dictionary<ExpressionType, string>()
-                                                                              {
-                                                                                  { ExpressionType.Equal, "="},
-                                                                                  { ExpressionType.NotEqual, "!="},
-                                                                                  { ExpressionType.GreaterThan, ">"},
-                                                                                  { ExpressionType.LessThan, "<"},
-                                                                                  { ExpressionType.GreaterThanOrEqual, ">="},
-                                                                                  { ExpressionType.LessThanOrEqual, "<="}
-                                                                              };
+        private readonly Dictionary<ExpressionType, string> _operationDictionary =
+            new Dictionary<ExpressionType, string>()
+            {
+                {ExpressionType.Equal, "="},
+                {ExpressionType.NotEqual, "!="},
+                {ExpressionType.GreaterThan, ">"},
+                {ExpressionType.LessThan, "<"},
+                {ExpressionType.GreaterThanOrEqual, ">="},
+                {ExpressionType.LessThanOrEqual, "<="}
+            };
 
         private SqlQueryBuilder _builder { get; set; }
 
@@ -28,6 +29,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         }
 
         #region helpers
+
         public static string GetColumnName<T>(Expression<Func<T, object>> selector)
         {
             return GetColumnName(GetMemberExpression(selector.Body));
@@ -37,10 +39,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         {
             var member = GetMemberExpression(expression);
             var column = member.Member.GetCustomAttributes(false).OfType<SqlLamColumnAttribute>().FirstOrDefault();
-            if (column != null)
-                return column.Name;
-            else
-                return member.Member.Name;
+            return column != null ? column.Name : member.Member.Name;
         }
 
         public static string GetTableName<T>()
@@ -51,10 +50,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         public static string GetTableName(Type type)
         {
             var column = type.GetCustomAttributes(false).OfType<SqlLamTableAttribute>().FirstOrDefault();
-            if (column != null)
-                return column.Name;
-            else
-                return type.Name;
+            return column != null ? column.Name : type.Name;
         }
 
         private static string GetTableName(MemberExpression expression)
@@ -64,8 +60,8 @@ namespace Zaabee.Dapper.Lambda.Resolver
 
         private static BinaryExpression GetBinaryExpression(Expression expression)
         {
-            if (expression is BinaryExpression)
-                return expression as BinaryExpression;
+            if (expression is BinaryExpression binaryExpression)
+                return binaryExpression;
 
             throw new ArgumentException("Binary expression expected");
         }

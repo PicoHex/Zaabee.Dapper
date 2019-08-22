@@ -8,26 +8,12 @@ namespace Zaabee.Dapper.Lambda.Adapter
     class SqlServerAdapterBase : SqlAdapterBase
     {
         public string QueryStringPage(string source, string selection, string conditions, string order,
-            int pageSize)
-        {
-            return string.Format("SELECT TOP({4}) {0} FROM {1} {2} {3}",
-                    selection, source, conditions, order, pageSize);
-        }
+            int pageSize) => $"SELECT TOP({pageSize}) {selection} FROM {source} {conditions} {order}";
 
+        public string Table(string tableName) => $"[{tableName}]";
 
-        public string Table(string tableName)
-        {
-            return string.Format("[{0}]", tableName);
-        }
+        public string Field(string tableName, string fieldName) => $"[{tableName}].[{fieldName}]";
 
-        public string Field(string tableName, string fieldName)
-        {
-            return string.Format("[{0}].[{1}]", tableName, fieldName);
-        }
-
-        public string Parameter(string parameterId)
-        {
-            return "@" + parameterId;
-        }
+        public string Parameter(string parameterId) => "@" + parameterId;
     }
 }

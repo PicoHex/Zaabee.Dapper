@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using Zaabee.Dapper.Lambda.Adapter;
 using Zaabee.Dapper.Lambda.ValueObjects;
-using LambdaResolver = Zaabee.Dapper.Lambda.Resolver.LambdaResolver;
-using SqlQueryBuilder = Zaabee.Dapper.Lambda.Builder.SqlQueryBuilder;
+using Zaabee.Dapper.Lambda.Resolver;
+using Zaabee.Dapper.Lambda.Builder;
 
 namespace Zaabee.Dapper.Lambda
 {

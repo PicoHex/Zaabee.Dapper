@@ -2,7 +2,7 @@
 
 namespace Zaabee.Dapper.Lambda.Resolver.ExpressionTree
 {
-    class LikeNode : Node
+    internal class LikeNode : Node
     {
         public LikeMethod Method { get; set; }
         public MemberNode MemberNode { get; set; }

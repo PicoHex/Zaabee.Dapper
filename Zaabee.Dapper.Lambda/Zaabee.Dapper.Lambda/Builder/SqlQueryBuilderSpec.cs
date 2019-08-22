@@ -11,13 +11,11 @@ namespace Zaabee.Dapper.Lambda.Builder
     {
         public void Join(string originalTableName, string joinTableName, string leftField, string rightField)
         {
-            var joinString = string.Format("JOIN {0} ON {1} = {2}",
-                                           Adapter.Table(joinTableName), 
-                                           Adapter.Field(originalTableName, leftField),
-                                           Adapter.Field(joinTableName, rightField));
-            _tableNames.Add(joinTableName);
-            _joinExpressions.Add(joinString);
-            _splitColumns.Add(rightField);
+            var joinString =
+                $"JOIN {Adapter.Table(joinTableName)} ON {Adapter.Field(originalTableName, leftField)} = {Adapter.Field(joinTableName, rightField)}";
+            TableNames.Add(joinTableName);
+            JoinExpressions.Add(joinString);
+            SplitColumns.Add(rightField);
         }
 
         public void OrderBy(string tableName, string fieldName, bool desc = false)
@@ -26,29 +24,29 @@ namespace Zaabee.Dapper.Lambda.Builder
             if (desc)
                 order += " DESC";
 
-            _sortList.Add(order);            
+            OrderByList.Add(order);
         }
 
         public void Select(string tableName)
         {
-            var selectionString = string.Format("{0}.*", Adapter.Table(tableName));
-            _selectionList.Add(selectionString);
+            var selectionString = $"{Adapter.Table(tableName)}.*";
+            SelectionList.Add(selectionString);
         }
 
         public void Select(string tableName, string fieldName)
         {
-            _selectionList.Add(Adapter.Field(tableName, fieldName));
+            SelectionList.Add(Adapter.Field(tableName, fieldName));
         }
 
         public void Select(string tableName, string fieldName, SelectFunction selectFunction)
         {
-            var selectionString = string.Format("{0}({1})", selectFunction.ToString(), Adapter.Field(tableName, fieldName));
-            _selectionList.Add(selectionString);
+            var selectionString = $"{selectFunction.ToString()}({Adapter.Field(tableName, fieldName)})";
+            SelectionList.Add(selectionString);
         }
 
         public void GroupBy(string tableName, string fieldName)
         {
-            _groupingList.Add(Adapter.Field(tableName, fieldName));
+            GroupByList.Add(Adapter.Field(tableName, fieldName));
         }
     }
 }

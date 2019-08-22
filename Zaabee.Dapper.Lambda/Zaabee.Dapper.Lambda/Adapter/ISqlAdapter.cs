@@ -7,7 +7,7 @@ namespace Zaabee.Dapper.Lambda.Adapter
     /// </summary>
     interface ISqlAdapter
     {
-        string QueryString(string selection, string source, string conditions, 
+        string QueryString(string selection, string source, string conditions,
             string order, string grouping, string having);
 
         string QueryStringPage(string selection, string source, string conditions, string order,

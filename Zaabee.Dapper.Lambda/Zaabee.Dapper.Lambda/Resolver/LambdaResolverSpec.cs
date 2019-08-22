@@ -17,14 +17,16 @@ namespace Zaabee.Dapper.Lambda.Resolver
             Join<T1, T2>(leftExpression, rightExpression);
         }
 
-        public void Join<T1, T2, TKey>(Expression<Func<T1, TKey>> leftExpression, Expression<Func<T1, TKey>> rightExpression)
+        public void Join<T1, T2, TKey>(Expression<Func<T1, TKey>> leftExpression,
+            Expression<Func<T1, TKey>> rightExpression)
         {
             Join<T1, T2>(GetMemberExpression(leftExpression.Body), GetMemberExpression(rightExpression.Body));
         }
 
         public void Join<T1, T2>(MemberExpression leftExpression, MemberExpression rightExpression)
         {
-            _builder.Join(GetTableName<T1>(), GetTableName<T2>(), GetColumnName(leftExpression), GetColumnName(rightExpression));
+            _builder.Join(GetTableName<T1>(), GetTableName<T2>(), GetColumnName(leftExpression),
+                GetColumnName(rightExpression));
         }
 
         public void OrderBy<T>(Expression<Func<T, object>> expression, bool desc = false)
@@ -32,7 +34,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
             var fieldName = GetColumnName(GetMemberExpression(expression.Body));
             _builder.OrderBy(GetTableName<T>(), fieldName, desc);
         }
-        
+
         public void Select<T>(Expression<Func<T, object>> expression)
         {
             Select<T>(expression.Body);
@@ -55,15 +57,15 @@ namespace Zaabee.Dapper.Lambda.Resolver
                     break;
                 default:
                     throw new ArgumentException("Invalid expression");
-            }           
+            }
         }
 
         private void Select<T>(MemberExpression expression)
         {
             if (expression.Type.IsClass && expression.Type != typeof(String))
-                _builder.Select(GetTableName(expression.Type));                            
+                _builder.Select(GetTableName(expression.Type));
             else
-                _builder.Select(GetTableName<T>(), GetColumnName(expression));            
+                _builder.Select(GetTableName<T>(), GetColumnName(expression));
         }
 
         public void SelectWithFunction<T>(Expression<Func<T, object>> expression, SelectFunction selectFunction)
