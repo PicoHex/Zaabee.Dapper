@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Zaabee.Dapper.Extensions
 {
-    public class TypeMapInfo
+    internal class TypeMapInfo
     {
         public TypeInfo TypeInfo { get; set; }
         public string TableName { get; set; }

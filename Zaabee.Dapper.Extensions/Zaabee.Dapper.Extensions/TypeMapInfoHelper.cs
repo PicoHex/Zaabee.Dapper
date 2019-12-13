@@ -18,12 +18,12 @@ namespace Zaabee.Dapper.Extensions
             return GetTypeMapInfo(typeof(T)).IdPropertyInfo.GetValue(entity);
         }
 
-        public static object GetPropertyTableValue<T>(T entity, PropertyInfo propertyInfo)
+        public static object GetPropertyTableValue(object obj, PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetValue(entity);
+            return propertyInfo.GetValue(obj);
         }
 
-        public static TypeMapInfo GetTypeMapInfo(Type type)
+        internal static TypeMapInfo GetTypeMapInfo(Type type)
         {
             return TypePropertyCache.GetOrAdd(type, typeKey =>
             {

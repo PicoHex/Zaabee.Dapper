@@ -7,7 +7,7 @@ using Zaabee.Dapper.Extensions.Enums;
 
 namespace Zaabee.Dapper.Extensions.Adapters
 {
-    public class DefaultSqlAdapter : ISqlAdapter
+    internal class DefaultSqlAdapter : ISqlAdapter
     {
         private readonly ConcurrentDictionary<Type, string> _insertSqlCache =
             new ConcurrentDictionary<Type, string>();

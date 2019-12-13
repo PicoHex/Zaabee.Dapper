@@ -1,6 +1,6 @@
 namespace Zaabee.Dapper.Extensions.Adapters
 {
-    public class MySqlAdapter : DefaultSqlAdapter
+    internal class MySqlAdapter : DefaultSqlAdapter
     {
         protected override string FormatColumnName(string columnName)
         {

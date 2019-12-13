@@ -3,7 +3,7 @@ using Zaabee.Dapper.Extensions.Enums;
 
 namespace Zaabee.Dapper.Extensions.Adapters
 {
-    public class PostgresAdapter : DefaultSqlAdapter
+    internal class PostgresAdapter : DefaultSqlAdapter
     {
         protected override string FormatColumnName(string columnName)
         {

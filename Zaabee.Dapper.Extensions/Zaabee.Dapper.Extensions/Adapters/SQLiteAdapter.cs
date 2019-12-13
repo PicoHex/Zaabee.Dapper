@@ -1,6 +1,6 @@
 namespace Zaabee.Dapper.Extensions.Adapters
 {
-    public class SQLiteAdapter : DefaultSqlAdapter
+    internal class SQLiteAdapter : DefaultSqlAdapter
     {
         protected override string FormatColumnName(string columnName)
         {
