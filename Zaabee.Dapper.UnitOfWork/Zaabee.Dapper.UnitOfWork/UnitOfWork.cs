@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Zaabee.Dapper.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork
     {
         public Guid Id { get; }
         public IDbConnection Connection { get; }
