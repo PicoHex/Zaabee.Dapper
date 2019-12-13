@@ -13,15 +13,9 @@ namespace Zaabee.Dapper.Extensions
         private static readonly ConcurrentDictionary<Type, TypeMapInfo> TypePropertyCache =
             new ConcurrentDictionary<Type, TypeMapInfo>();
 
-        public static object GetIdValue<T>(T entity)
-        {
-            return GetTypeMapInfo(typeof(T)).IdPropertyInfo.GetValue(entity);
-        }
+        public static object GetIdValue<T>(T entity) => GetTypeMapInfo(typeof(T)).IdPropertyInfo.GetValue(entity);
 
-        public static object GetPropertyTableValue(object obj, PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetValue(obj);
-        }
+        public static object GetPropertyTableValue(object obj, PropertyInfo propertyInfo) => propertyInfo.GetValue(obj);
 
         internal static TypeMapInfo GetTypeMapInfo(Type type)
         {

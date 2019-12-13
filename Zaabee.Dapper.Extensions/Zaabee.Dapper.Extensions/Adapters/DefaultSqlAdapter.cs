@@ -144,10 +144,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return typeSql[criteriaType];
         }
 
-        protected virtual string FormatColumnName(string columnName)
-        {
-            return $"'{columnName}'";
-        }
+        protected virtual string FormatColumnName(string columnName) => $"'{columnName}'";
 
         protected virtual string SelectStringParse(TypeMapInfo typeMapInfo)
         {

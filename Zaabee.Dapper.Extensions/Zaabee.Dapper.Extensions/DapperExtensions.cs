@@ -32,10 +32,8 @@ namespace Zaabee.Dapper.Extensions
         #region Add
 
         public static int Add<T>(this IDbConnection connection, T persistentObject,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return Add(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            Add(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
 
         public static int Add<T>(this IDbConnection connection, T persistentObject, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -56,10 +54,8 @@ namespace Zaabee.Dapper.Extensions
         }
 
         public static int AddRange<T>(this IDbConnection connection, IEnumerable persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return AddRange(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            AddRange(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
 
         public static int AddRange(this IDbConnection connection, IEnumerable persistentObjects, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -84,10 +80,8 @@ namespace Zaabee.Dapper.Extensions
         #region Remove
 
         public static int RemoveByEntity<T>(this IDbConnection connection, T persistentObject,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return RemoveByEntity(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            RemoveByEntity(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
 
         public static int RemoveByEntity(this IDbConnection connection, object persistentObject, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -100,10 +94,8 @@ namespace Zaabee.Dapper.Extensions
         }
 
         public static int RemoveById<T>(this IDbConnection connection, object id,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return RemoveById(connection, id, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            RemoveById(connection, id, typeof(T), transaction, commandTimeout, commandType);
 
         public static int RemoveById(this IDbConnection connection, object id, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -116,10 +108,8 @@ namespace Zaabee.Dapper.Extensions
         }
 
         public static int RemoveByEntities<T>(this IDbConnection connection, IEnumerable persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return RemoveByEntities(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            RemoveByEntities(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
 
         public static int RemoveByEntities(this IDbConnection connection, IEnumerable persistentObjects, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -133,10 +123,8 @@ namespace Zaabee.Dapper.Extensions
         }
 
         public static int RemoveByIds<T>(this IDbConnection connection, IEnumerable ids,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return RemoveByIds(connection, ids, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            RemoveByIds(connection, ids, typeof(T), transaction, commandTimeout, commandType);
 
         public static int RemoveByIds(this IDbConnection connection, IEnumerable ids, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -150,10 +138,8 @@ namespace Zaabee.Dapper.Extensions
         }
 
         public static int RemoveAll<T>(this IDbConnection connection,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return RemoveAll(connection, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            RemoveAll(connection, typeof(T), transaction, commandTimeout, commandType);
 
         public static int RemoveAll(this IDbConnection connection, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -169,10 +155,8 @@ namespace Zaabee.Dapper.Extensions
         #region Update
 
         public static int Update<T>(this IDbConnection connection, T persistentObject,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return Update(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            Update(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
 
         public static int Update(this IDbConnection connection, object persistentObject, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
@@ -200,10 +184,8 @@ namespace Zaabee.Dapper.Extensions
         }
 
         public static int UpdateAll<T>(this IDbConnection connection, IEnumerable persistentObjects,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            return UpdateAll(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
-        }
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            UpdateAll(connection, persistentObjects, typeof(T), transaction, commandTimeout, commandType);
 
         public static int UpdateAll(this IDbConnection connection, IEnumerable persistentObjects, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)

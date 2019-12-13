@@ -5,27 +5,33 @@ namespace Zaabee.Dapper.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private readonly Guid _id;
+        public Guid Id { get; }
         public IDbConnection Connection { get; }
         public IDbTransaction Transaction { get; private set; }
 
         internal UnitOfWork(IDbConnection connection)
         {
-            _id = Guid.NewGuid();
+            Id = Guid.NewGuid();
             Connection = connection;
         }
 
-        Guid IUnitOfWork.Id => _id;
-
-        public void Begin()
-        {
-            Transaction = Connection.BeginTransaction();
-        }
+        public void Begin() => Transaction = Connection.BeginTransaction();
 
         public void Commit()
         {
-            Transaction.Commit();
-            Transaction.Dispose();
+            try
+            {
+                Transaction.Commit();
+            }
+            catch
+            {
+                Transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                Transaction.Dispose();
+            }
         }
 
         public void Rollback()
