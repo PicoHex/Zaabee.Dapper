@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj" />
+      <ProjectReference Include="..\..\src\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj" />
     </ItemGroup>
 
 </Project>
