@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>0.0.1</PackageVersion>
+        <Version>0.0.1</Version>
+        <Authors>Mutuduxf</Authors>
+        <Company>Mutuduxf</Company>
+        <PackageTags>Zaabee Dapper Extensions</PackageTags>
+        <Description>Extensions for Dapper.</Description>
+        <PackageProjectUrl>https://github.com/Mutuduxf/Zaabee.Dapper</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/Mutuduxf/Zaabee.Dapper/blob/master/LICENSE</PackageLicenseUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="1.60.6" />
+      <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+    </ItemGroup>
+
+</Project>
