@@ -40,7 +40,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         {
             var member = GetMemberExpression(expression);
             var column = member.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
-            return column != null ? column.Name : member.Member.Name;
+            return column is not null ? column.Name : member.Member.Name;
         }
 
         public static string GetTableName<T>()
@@ -51,7 +51,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         public static string GetTableName(Type type)
         {
             var column = type.GetCustomAttributes(false).OfType<TableAttribute>().FirstOrDefault();
-            return column != null ? column.Name : type.Name;
+            return column is not null ? column.Name : type.Name;
         }
 
         private static string GetTableName(MemberExpression expression)

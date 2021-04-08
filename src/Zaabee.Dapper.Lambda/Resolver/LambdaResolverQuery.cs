@@ -104,7 +104,7 @@ namespace Zaabee.Dapper.Lambda.Resolver
         private object ResolveMethodCall(MethodCallExpression callExpression)
         {
             var arguments = callExpression.Arguments.Select(GetExpressionValue).ToArray();
-            var obj = callExpression.Object != null ? GetExpressionValue(callExpression.Object) : arguments.First();
+            var obj = callExpression.Object is not null ? GetExpressionValue(callExpression.Object) : arguments.First();
 
             return callExpression.Method.Invoke(obj, arguments);
         }

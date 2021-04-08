@@ -89,7 +89,7 @@ namespace Zaabee.Dapper.Lambda.TestProject
         /// </summary>
         [Fact]
         public void FindByInvalidFunction()
-        {            
+        {
             Assert.Throws<ArgumentException>(() => new SqlLam<Product>(p => p.ProductName.IsNormalized()));
         }
 
@@ -117,7 +117,7 @@ namespace Zaabee.Dapper.Lambda.TestProject
         [Fact]
         public void FindByNotNull()
         {
-            var query = new SqlLam<Order>(o => o.ShipRegion != null);
+            var query = new SqlLam<Order>(o => o.ShipRegion is not null);
 
             var result = Connection.Query<Order>(query.QueryString, query.QueryParameters).ToList();
 
@@ -125,7 +125,7 @@ namespace Zaabee.Dapper.Lambda.TestProject
 
             foreach (var order in result)
             {
-                Assert.True(order.ShipRegion != null);
+                Assert.True(order.ShipRegion is not null);
             }
         }
 
@@ -215,7 +215,7 @@ namespace Zaabee.Dapper.Lambda.TestProject
 
             var query = new SqlLam<FakeGuid>(p => p.Id == fakeGuid.Id.Value);
             Assert.Equal("[FakeGuid].[Id] = @Param1", query.SqlBuilder.WhereConditions.First());
-            if (fakeGuid.Id != null) Assert.Equal(fakeGuid.Id.Value, query.QueryParameters.First().Value);
+            if (fakeGuid.Id is not null) Assert.Equal(fakeGuid.Id.Value, query.QueryParameters.First().Value);
         }
 
         /// <summary>

@@ -52,7 +52,7 @@ namespace Zaabee.Dapper.Extensions
                     
                     typeMapInfo.ForeignKeyPropertyInfo = typeProperties.FirstOrDefault(property =>
                         Attribute.GetCustomAttributes(property).OfType<ForeignKeyAttribute>().Any());
-                    if (typeMapInfo.ForeignKeyPropertyInfo != null)
+                    if (typeMapInfo.ForeignKeyPropertyInfo is not null)
                         typeMapInfo.ForeignKeyColumnName =
                             Attribute.GetCustomAttributes(typeMapInfo.ForeignKeyPropertyInfo)
                                 .OfType<ForeignKeyAttribute>()
