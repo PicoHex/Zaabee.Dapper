@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <LangVersion>latest</LangVersion>
         <PackageVersion>0.0.1</PackageVersion>
         <Version>0.0.1</Version>
         <Authors>Mutuduxf</Authors>
