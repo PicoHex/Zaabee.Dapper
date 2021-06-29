@@ -17,8 +17,7 @@ namespace Zaabee.Dapper.Extensions
             var type = typeof(T);
             var adapter = GetSqlAdapter(connection);
             var result = await connection.ExecuteAsync(adapter.GetInsertSql(type), persistentObject, transaction,
-                commandTimeout,
-                commandType);
+                commandTimeout, commandType);
 //            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
 //            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
 //                await AddRangeAsync(connection,
@@ -44,8 +43,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var result = await connection.ExecuteAsync(adapter.GetInsertSql(type), persistentObjects, transaction,
-                commandTimeout,
-                commandType);
+                commandTimeout, commandType);
 //            var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
 //            foreach (var persistentObject in persistentObjects)
 //            foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
@@ -71,8 +69,7 @@ namespace Zaabee.Dapper.Extensions
             var adapter = GetSqlAdapter(connection);
             return await connection.ExecuteAsync(
                 adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
+                new {Id = id}, transaction, commandTimeout, commandType);
         }
 
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
@@ -80,10 +77,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return await connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
-                persistentObjects,
-                transaction,
-                commandTimeout,
-                commandType);
+                persistentObjects, transaction, commandTimeout, commandType);
         }
 
         public static async Task<int> RemoveAllAsync<T>(this IDbConnection connection, object ids,
@@ -99,8 +93,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return await connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.None), null, transaction,
-                commandTimeout,
-                commandType);
+                commandTimeout, commandType);
         }
 
         public static async Task<int> UpdateAsync<T>(this IDbConnection connection, T persistentObject,
@@ -108,8 +101,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return await connection.ExecuteAsync(adapter.GetUpdateSql(typeof(T)), persistentObject, transaction,
-                commandTimeout,
-                commandType);
+                commandTimeout, commandType);
         }
 
         public static async Task<int> UpdateAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
@@ -125,8 +117,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return await connection.QueryFirstOrDefaultAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
+                new {Id = id}, transaction, commandTimeout, commandType);
         }
 
         public static async Task<IList<T>> GetAsync<T>(this IDbConnection connection, object ids,
@@ -135,8 +126,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(T), CriteriaType.MultiId);
-            return (await connection.QueryAsync<T>(sql,
-                new {Ids = (IEnumerable) ids},
+            return (await connection.QueryAsync<T>(sql, new {Ids = (IEnumerable) ids},
                 transaction, commandTimeout, commandType)).ToList();
         }
 
@@ -146,8 +136,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return (await connection.QueryAsync<T>(adapter.GetSelectSql(typeof(T), CriteriaType.None), null,
-                transaction,
-                commandTimeout, commandType)).ToList();
+                transaction, commandTimeout, commandType)).ToList();
         }
     }
 }

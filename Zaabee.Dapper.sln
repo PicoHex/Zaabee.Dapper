@@ -6,13 +6,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EFE8BE56
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions", "src\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj", "{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Lambda", "src\Zaabee.Dapper.Lambda\Zaabee.Dapper.Lambda.csproj", "{761A262C-1A23-49AC-AA12-97EC87640801}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.UnitOfWork", "src\Zaabee.Dapper.UnitOfWork\Zaabee.Dapper.UnitOfWork.csproj", "{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions.TestProject", "tests\Zaabee.Dapper.Extensions.TestProject\Zaabee.Dapper.Extensions.TestProject.csproj", "{49054DBB-5A34-4725-940C-77915D72EEC6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Lambda.TestProject", "tests\Zaabee.Dapper.Lambda.TestProject\Zaabee.Dapper.Lambda.TestProject.csproj", "{CCEAD485-D8B9-4F7D-A067-9BDDBB4ACCE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,20 +17,14 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
-		{761A262C-1A23-49AC-AA12-97EC87640801} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
 		{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
 		{49054DBB-5A34-4725-940C-77915D72EEC6} = {EFE8BE56-16A9-4B73-9B3D-FC7131F82A3A}
-		{CCEAD485-D8B9-4F7D-A067-9BDDBB4ACCE2} = {EFE8BE56-16A9-4B73-9B3D-FC7131F82A3A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{761A262C-1A23-49AC-AA12-97EC87640801}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{761A262C-1A23-49AC-AA12-97EC87640801}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{761A262C-1A23-49AC-AA12-97EC87640801}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{761A262C-1A23-49AC-AA12-97EC87640801}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -43,9 +33,5 @@ Global
 		{49054DBB-5A34-4725-940C-77915D72EEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49054DBB-5A34-4725-940C-77915D72EEC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49054DBB-5A34-4725-940C-77915D72EEC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCEAD485-D8B9-4F7D-A067-9BDDBB4ACCE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCEAD485-D8B9-4F7D-A067-9BDDBB4ACCE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCEAD485-D8B9-4F7D-A067-9BDDBB4ACCE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCEAD485-D8B9-4F7D-A067-9BDDBB4ACCE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

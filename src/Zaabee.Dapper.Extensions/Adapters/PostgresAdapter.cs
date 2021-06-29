@@ -12,17 +12,13 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         protected override string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
         {
-            switch (criteriaType)
+            return criteriaType switch
             {
-                case CriteriaType.None:
-                    return string.Empty;
-                case CriteriaType.SingleId:
-                    return $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = @Id";
-                case CriteriaType.MultiId:
-                    return $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = ANY(@Ids)";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(criteriaType), criteriaType, null);
-            }
+                CriteriaType.None => string.Empty,
+                CriteriaType.SingleId => $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = @Id",
+                CriteriaType.MultiId => $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = ANY(@Ids)",
+                _ => throw new ArgumentOutOfRangeException(nameof(criteriaType), criteriaType, null)
+            };
         }
     }
 }

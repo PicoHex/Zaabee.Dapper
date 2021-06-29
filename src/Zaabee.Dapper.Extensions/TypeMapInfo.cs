@@ -11,9 +11,7 @@ namespace Zaabee.Dapper.Extensions
         public string IdColumnName { get; set; }
         public PropertyInfo ForeignKeyPropertyInfo { get; set; }
         public string ForeignKeyColumnName { get; set; }
-        public Dictionary<string, PropertyInfo> PropertyColumnDict { get; } = new Dictionary<string, PropertyInfo>();
-
-        public Dictionary<PropertyInfo, TypeMapInfo> PropertyTableDict { get; } =
-            new Dictionary<PropertyInfo, TypeMapInfo>();
+        public Dictionary<string, PropertyInfo> PropertyColumnDict { get; } = new();
+        public Dictionary<PropertyInfo, TypeMapInfo> PropertyTableDict { get; } = new();
     }
 }

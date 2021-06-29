@@ -10,8 +10,7 @@ namespace Zaabee.Dapper.Extensions
 {
     public static class TypeMapInfoHelper
     {
-        private static readonly ConcurrentDictionary<Type, TypeMapInfo> TypePropertyCache =
-            new ConcurrentDictionary<Type, TypeMapInfo>();
+        private static readonly ConcurrentDictionary<Type, TypeMapInfo> TypePropertyCache = new();
 
         public static object GetIdValue<T>(T entity) => GetTypeMapInfo(typeof(T)).IdPropertyInfo.GetValue(entity);
 
@@ -19,7 +18,7 @@ namespace Zaabee.Dapper.Extensions
 
         internal static TypeMapInfo GetTypeMapInfo(Type type)
         {
-            return TypePropertyCache.GetOrAdd(type, typeKey =>
+            return TypePropertyCache.GetOrAdd(type, _ =>
             {
                 lock (type)
                 {
@@ -36,13 +35,9 @@ namespace Zaabee.Dapper.Extensions
 
                     typeMapInfo.IdPropertyInfo = typeProperties.FirstOrDefault(property =>
                         Attribute.GetCustomAttributes(property).OfType<KeyAttribute>().Any() ||
-                        property.Name == "Id" ||
-                        property.Name == "ID" ||
-                        property.Name == "id" ||
-                        property.Name == "_id" ||
-                        property.Name == $"{typeMapInfo.TableName}Id");
+                        property.Name is "Id" or "ID" or "id" or "_id" || property.Name == $"{typeMapInfo.TableName}Id");
 
-                    if (typeMapInfo.IdPropertyInfo == null)
+                    if (typeMapInfo.IdPropertyInfo is null)
                         throw new ArgumentException($"Can not find the id property in {nameof(type)}.");
 
                     typeMapInfo.IdColumnName =
@@ -65,7 +60,7 @@ namespace Zaabee.Dapper.Extensions
                             typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
                         {
                             var genericType = propertyInfo.PropertyType.GenericTypeArguments.FirstOrDefault();
-                            if (genericType == null)
+                            if (genericType is null)
                                 throw new NotSupportedException(
                                     $"{propertyInfo.PropertyType} generic type can only be single.");
                             if (genericType == type)

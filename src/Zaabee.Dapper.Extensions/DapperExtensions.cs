@@ -12,7 +12,7 @@ namespace Zaabee.Dapper.Extensions
     public partial class DapperExtensions
     {
         private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary =
-            new Dictionary<string, ISqlAdapter>
+            new()
             {
                 ["idbconnection"] = new DefaultSqlAdapter(),
                 ["sqlconnection"] = new SqlServerAdapter(),
@@ -45,9 +45,7 @@ namespace Zaabee.Dapper.Extensions
             foreach (var keyValuePair in typeMapInfo.PropertyTableDict)
                 AddRange(connection,
                     (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
-                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
-                    transaction,
-                    commandTimeout,
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(), transaction, commandTimeout,
                     commandType);
 
             return result;
@@ -68,9 +66,7 @@ namespace Zaabee.Dapper.Extensions
             foreach (var persistentObject in persistentObjects)
                 AddRange(connection,
                     (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
-                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
-                    transaction,
-                    commandTimeout,
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(), transaction, commandTimeout,
                     commandType);
             return result;
         }
@@ -88,9 +84,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return connection.Execute(
-                adapter.GetDeleteSql(type, CriteriaType.SingleId),
-                persistentObject,
-                transaction, commandTimeout, commandType);
+                adapter.GetDeleteSql(type, CriteriaType.SingleId), persistentObject, transaction, commandTimeout,
+                commandType);
         }
 
         public static int RemoveById<T>(this IDbConnection connection, object id,
@@ -101,10 +96,8 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
-            return connection.Execute(
-                adapter.GetDeleteSql(type, CriteriaType.SingleId),
-                new {Id = id},
-                transaction, commandTimeout, commandType);
+            return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.SingleId), new {Id = id}, transaction,
+                commandTimeout, commandType);
         }
 
         public static int RemoveByEntities<T>(this IDbConnection connection, IEnumerable persistentObjects,
@@ -116,10 +109,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.SingleId),
-                persistentObjects,
-                transaction,
-                commandTimeout,
-                commandType);
+                persistentObjects, transaction, commandTimeout, commandType);
         }
 
         public static int RemoveByIds<T>(this IDbConnection connection, IEnumerable ids,
@@ -131,10 +121,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.MultiId),
-                new {Ids = ids},
-                transaction,
-                commandTimeout,
-                commandType);
+                new {Ids = ids}, transaction, commandTimeout, commandType);
         }
 
         public static int RemoveAll<T>(this IDbConnection connection,
@@ -146,8 +133,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             return connection.Execute(adapter.GetDeleteSql(type, CriteriaType.None), null, transaction,
-                commandTimeout,
-                commandType);
+                commandTimeout, commandType);
         }
 
         #endregion
@@ -166,15 +152,11 @@ namespace Zaabee.Dapper.Extensions
             {
                 RemoveByEntities(connection,
                     (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
-                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
-                    transaction,
-                    commandTimeout,
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(), transaction, commandTimeout,
                     commandType);
                 AddRange(connection,
                     (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
-                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
-                    transaction,
-                    commandTimeout,
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(), transaction, commandTimeout,
                     commandType);
             }
 
@@ -196,15 +178,11 @@ namespace Zaabee.Dapper.Extensions
             {
                 RemoveByEntities(connection,
                     (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
-                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
-                    transaction,
-                    commandTimeout,
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(), transaction, commandTimeout,
                     commandType);
                 AddRange(connection,
                     (IEnumerable) TypeMapInfoHelper.GetPropertyTableValue(persistentObject, keyValuePair.Key),
-                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(),
-                    transaction,
-                    commandTimeout,
+                    keyValuePair.Key.PropertyType.GenericTypeArguments.FirstOrDefault(), transaction, commandTimeout,
                     commandType);
             }
 
@@ -233,8 +211,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.SingleId);
-            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         public static IEnumerable<TReturn> FirstOrDefault<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
@@ -244,8 +222,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.SingleId);
-            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         public static IEnumerable<TReturn> FirstOrDefault<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
@@ -255,8 +233,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.SingleId);
-            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         public static IEnumerable<TReturn> FirstOrDefault<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
@@ -267,8 +245,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.SingleId);
-            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         public static IEnumerable<TReturn> FirstOrDefault<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh,
@@ -279,8 +257,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.SingleId);
-            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Id = id}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         #endregion
@@ -293,9 +271,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(T), CriteriaType.MultiId);
-            return connection.Query<T>(sql,
-                new {Ids = ids},
-                transaction, buffered, commandTimeout, commandType).ToList();
+            return connection.Query<T>(sql, new {Ids = ids}, transaction, buffered, commandTimeout, commandType)
+                .ToList();
         }
 
         public static IEnumerable<TReturn> Get<TFirst, TSecond, TReturn>(this IDbConnection connection,
@@ -305,8 +282,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.MultiId);
-            return connection.Query(sql, map, new {Ids = ids}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Ids = ids}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         public static IEnumerable<TReturn> Get<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh,
@@ -317,8 +294,8 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.MultiId);
-            return connection.Query(sql, map, new {Ids = ids}, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, new {Ids = ids}, transaction, buffered, splitOn, commandTimeout,
+                commandType);
         }
 
         #endregion
@@ -341,8 +318,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.None);
-            return connection.Query(sql, map, null, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, null, transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
         public static IEnumerable<TReturn> GetAll<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh,
@@ -353,8 +329,7 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var sql = adapter.GetSelectSql(typeof(TFirst), CriteriaType.None);
-            return connection.Query(sql, map, null, transaction, buffered, splitOn,
-                commandTimeout, commandType);
+            return connection.Query(sql, map, null, transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
         #endregion

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Newtonsoft.Json;
 using Xunit;
 using Zaabee.Dapper.Extensions.TestProject.POCOs;
 using Zaabee.NewtonsoftJson;
@@ -12,11 +13,12 @@ namespace Zaabee.Dapper.Extensions.TestProject
     public class UnitTest
     {
         private readonly Func<IDbConnection> _connFunc;
+
         public UnitTest(Func<IDbConnection> connFunc)
         {
             _connFunc = connFunc;
         }
-        
+
         #region sync
 
         public void Add()
@@ -125,8 +127,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
 //                    return mypoco;
 //                });
                 var result = conn.FirstOrDefault<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
+                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
                 Assert.Equal(firstJson, secondJson);
             }
         }
@@ -141,8 +143,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var modifyQuantity = conn.UpdateAll<MyPoco>(entities);
                 Assert.Equal(modifyQuantity, entities.Count);
                 var results = conn.Get<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
-                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
-                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+                Assert.Equal(
+                    entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
+                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}),
+                    results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
+                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}));
             }
         }
 
@@ -153,8 +158,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entity = CreatePoco();
                 conn.Add(entity);
                 var result = conn.FirstOrDefault<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
+                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
                 Assert.Equal(firstJson, secondJson);
             }
         }
@@ -166,8 +171,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entities = CreatePocos(10);
                 conn.AddRange<MyPoco>(entities);
                 var results = conn.Get<MyPoco>(entities.Select(e => e.Id).ToList());
-                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
-                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+                Assert.Equal(
+                    entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
+                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}),
+                    results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
+                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}));
             }
         }
 
@@ -287,8 +295,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var modifyQuantity = await conn.UpdateAsync(entity);
                 Assert.Equal(1, modifyQuantity);
                 var result = await conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
+                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
                 Assert.Equal(firstJson, secondJson);
             }
         }
@@ -303,8 +311,11 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var modifyQuantity = await conn.UpdateAllAsync(entities);
                 Assert.Equal(modifyQuantity, entities.Count);
                 var results = await conn.GetAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
-                Assert.Equal(entities.OrderBy(e => e.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"),
-                    results.OrderBy(r => r.Id).ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss"));
+                Assert.Equal(
+                    entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
+                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}),
+                    results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
+                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}));
             }
         }
 
@@ -315,8 +326,8 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
                 var result = await conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
-                var secondJson = result.ToJson(dateTimeFormat: "yyyy/MM/dd HH:mm:ss");
+                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
+                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
                 Assert.Equal(firstJson, secondJson);
             }
         }
@@ -334,34 +345,33 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
         #endregion
 
-        private static MyPoco CreatePoco(SequentialGuidHelper.SequentialGuidType? guidType = null)
+        private static MyPoco CreatePoco(SequentialGuidType? guidType = null)
         {
             var m = new Random().Next();
-            var id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value);
+            var id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value);
             return new MyPoco
             {
                 Id = id,
-                Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
-                Gender = m % 2 == 0 ? Gender.Male : Gender.Female,
+                Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
+                Gender = m % 2 is 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
                 CreateTime = DateTime.UtcNow,
                 Kids = new List<MySubPoco>
                 {
-                    new MySubPoco
+                    new()
                     {
-                        Id = guidType == null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+                        Id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
                         MyPocoId = id,
-                        Name = m % 3 == 0 ? "apple" : m % 2 == 0 ? "banana" : "pear",
+                        Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
                         Remark = "This is a sub poco."
                     }
                 }
             };
         }
 
-        private static List<MyPoco> CreatePocos(int quantity,
-            SequentialGuidHelper.SequentialGuidType? guidType = null)
+        private static List<MyPoco> CreatePocos(int quantity, SequentialGuidType? guidType = null)
         {
-            return Enumerable.Range(0, quantity).Select(p => CreatePoco(guidType)).ToList();
+            return Enumerable.Range(0, quantity).Select(_ => CreatePoco(guidType)).ToList();
         }
     }
 }

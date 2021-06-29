@@ -9,21 +9,17 @@ namespace Zaabee.Dapper.Extensions.Adapters
 {
     internal class DefaultSqlAdapter : ISqlAdapter
     {
-        private readonly ConcurrentDictionary<Type, string> _insertSqlCache =
-            new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _insertSqlCache = new();
 
-        private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _deleteSqlCache =
-            new ConcurrentDictionary<Type, Dictionary<CriteriaType, string>>();
+        private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _deleteSqlCache = new();
 
-        private readonly ConcurrentDictionary<Type, string> _updateSqlDict =
-            new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _updateSqlDict = new();
 
-        private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _selectSqlCache =
-            new ConcurrentDictionary<Type, Dictionary<CriteriaType, string>>();
+        private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _selectSqlCache = new();
 
         public virtual string GetInsertSql(Type type)
         {
-            return _insertSqlCache.GetOrAdd(type, key =>
+            return _insertSqlCache.GetOrAdd(type, _ =>
             {
                 lock (type)
                 {
@@ -44,7 +40,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string GetDeleteSql(Type type, CriteriaType conditionType)
         {
-            var sqls = _deleteSqlCache.GetOrAdd(type, typeKey =>
+            var sqls = _deleteSqlCache.GetOrAdd(type, _ =>
             {
                 lock (type)
                 {
@@ -73,7 +69,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string GetUpdateSql(Type type)
         {
-            return _updateSqlDict.GetOrAdd(type, key =>
+            return _updateSqlDict.GetOrAdd(type, _ =>
             {
                 lock (type)
                 {
@@ -88,7 +84,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string GetSelectSql(Type type, CriteriaType criteriaType)
         {
-            var typeSql = _selectSqlCache.GetOrAdd(type, key =>
+            var typeSql = _selectSqlCache.GetOrAdd(type, _ =>
             {
                 lock (type)
                 {
@@ -117,7 +113,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         public virtual string GetComplexSelectSql(Type type, CriteriaType criteriaType)
         {
-            var typeSql = _selectSqlCache.GetOrAdd(type, key =>
+            var typeSql = _selectSqlCache.GetOrAdd(type, _ =>
             {
                 lock (type)
                 {
@@ -187,7 +183,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
 
         protected virtual StringBuilder GetFromJoinString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
         {
-            sb = sb ?? new StringBuilder($"FROM {typeMapInfo.TableName} ");
+            sb ??= new StringBuilder($"FROM {typeMapInfo.TableName} ");
             foreach (var pair in typeMapInfo.PropertyTableDict)
                 sb.Append(
                     $"LEFT JOIN {pair.Value.TableName} ON {typeMapInfo.TableName}.{typeMapInfo.IdPropertyInfo.Name} = {pair.Value.TableName}.{pair.Value.IdPropertyInfo.Name} ");
