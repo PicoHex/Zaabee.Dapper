@@ -14,7 +14,7 @@ namespace Zaabee.Dapper.Extensions
                 ["sqlconnection"] = new SqlServerAdapter(),
                 ["npgsqlconnection"] = new PostgresAdapter(),
                 ["mysqlconnection"] = new MySqlAdapter(),
-                ["sqliteconnection"] = new SQLiteAdapter()
+                ["sqliteconnection"] = new SqLiteAdapter()
             };
 
         private static ISqlAdapter GetSqlAdapter(IDbConnection dbConnection)

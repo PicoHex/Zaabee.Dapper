@@ -17,9 +17,8 @@ namespace Zaabee.Dapper.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
-            var result = await connection.ExecuteAsync(adapter.GetInsertSql(type), persistentObject, transaction,
+            return await connection.ExecuteAsync(adapter.GetInsertSql(type), persistentObject, transaction,
                 commandTimeout, commandType);
-            return result;
         }
 
         public static async Task<int> AddRangeAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
