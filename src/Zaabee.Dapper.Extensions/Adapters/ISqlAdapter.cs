@@ -3,7 +3,7 @@ using Zaabee.Dapper.Extensions.Enums;
 
 namespace Zaabee.Dapper.Extensions.Adapters
 {
-    public interface ISqlAdapter
+    internal interface ISqlAdapter
     {
         string GetInsertSql(Type type);
         string GetDeleteSql(Type type, CriteriaType conditionType);

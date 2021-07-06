@@ -46,33 +46,33 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(quantity, result);
         }
 
-        public void RemoveById()
+        public void DeleteById()
         {
             int result;
             using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
-                result = conn.RemoveById<MyPoco>(entity.Id);
+                result = conn.DeleteById<MyPoco>(entity.Id);
             }
 
             Assert.Equal(1, result);
         }
 
-        public void RemoveByEntity()
+        public void DeleteByEntity()
         {
             int result;
             using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 conn.Add(entity);
-                result = conn.RemoveByEntity(entity);
+                result = conn.DeleteByEntity(entity);
             }
 
             Assert.Equal(1, result);
         }
 
-        public void RemoveAllByIds()
+        public void DeleteAllByIds()
         {
             int result;
             List<MyPoco> entities;
@@ -80,13 +80,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 entities = CreatePocos(10);
                 conn.AddRange<MyPoco>(entities);
-                result = conn.RemoveByIds<MyPoco>(entities.Select(entity => entity.Id).ToList());
+                result = conn.DeleteByIds<MyPoco>(entities.Select(entity => entity.Id).ToList());
             }
 
             Assert.Equal(entities.Count, result);
         }
 
-        public void RemoveAllByEntities()
+        public void DeleteAllByEntities()
         {
             int result;
             List<MyPoco> entities;
@@ -94,19 +94,19 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 entities = CreatePocos(10);
                 conn.AddRange<MyPoco>(entities);
-                result = conn.RemoveByEntities<MyPoco>(entities);
+                result = conn.DeleteByEntities<MyPoco>(entities);
             }
 
             Assert.Equal(entities.Count, result);
         }
 
-        public void RemoveAll()
+        public void DeleteAll()
         {
             int quantity, result;
             using (var conn = _connFunc())
             {
                 quantity = conn.GetAll<MyPoco>().Count();
-                result = conn.RemoveAll<MyPoco>();
+                result = conn.DeleteAll<MyPoco>();
             }
 
             Assert.Equal(quantity, result);
@@ -219,33 +219,33 @@ namespace Zaabee.Dapper.Extensions.TestProject
             Assert.Equal(quantity, result);
         }
 
-        public async void RemoveByIdAsync()
+        public async void DeleteByIdAsync()
         {
             int result;
             using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                result = await conn.RemoveAsync<MyPoco>(entity.Id);
+                result = await conn.DeleteAsync<MyPoco>(entity.Id);
             }
 
             Assert.Equal(1, result);
         }
 
-        public async void RemoveByEntityAsync()
+        public async void DeleteByEntityAsync()
         {
             int result;
             using (var conn = _connFunc())
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                result = await conn.RemoveAsync(entity);
+                result = await conn.DeleteAsync(entity);
             }
 
             Assert.Equal(1, result);
         }
 
-        public async void RemoveAllByIdsAsync()
+        public async void DeleteAllByIdsAsync()
         {
             int result;
             List<MyPoco> entities;
@@ -253,13 +253,13 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                result = await conn.RemoveAllAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
+                result = await conn.DeleteAllAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
             }
 
             Assert.Equal(entities.Count, result);
         }
 
-        public async void RemoveAllByEntitiesAsync()
+        public async void DeleteAllByEntitiesAsync()
         {
             int result;
             List<MyPoco> entities;
@@ -267,19 +267,19 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                result = await conn.RemoveAllAsync(entities);
+                result = await conn.DeleteAllAsync(entities);
             }
 
             Assert.Equal(entities.Count, result);
         }
 
-        public async void RemoveAllAsync()
+        public async void DeleteAllAsync()
         {
             int quantity, result;
             using (var conn = _connFunc())
             {
                 quantity = (await conn.GetAllAsync<MyPoco>()).Count();
-                result = await conn.RemoveAllAsync<MyPoco>();
+                result = await conn.DeleteAllAsync<MyPoco>();
             }
 
             Assert.Equal(quantity, result);

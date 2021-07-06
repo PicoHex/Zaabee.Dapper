@@ -28,33 +28,33 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void RemoveById()
+        public void DeleteById()
         {
-            _unitTest.RemoveById();
+            _unitTest.DeleteById();
         }
 
         [Fact]
-        public void RemoveByEntity()
+        public void DeleteByEntity()
         {
-            _unitTest.RemoveByEntity();
+            _unitTest.DeleteByEntity();
         }
 
         [Fact]
-        public void RemoveAllByIds()
+        public void DeleteAllByIds()
         {
-            _unitTest.RemoveAllByIds();
+            _unitTest.DeleteAllByIds();
         }
 
         [Fact]
-        public void RemoveAllByEntities()
+        public void DeleteAllByEntities()
         {
-            _unitTest.RemoveAllByEntities();
+            _unitTest.DeleteAllByEntities();
         }
 
         [Fact]
-        public void RemoveAll()
+        public void DeleteAll()
         {
-            _unitTest.RemoveAll();
+            _unitTest.DeleteAll();
         }
 
         [Fact]
@@ -104,33 +104,33 @@ namespace Zaabee.Dapper.Extensions.TestProject
         }
 
         [Fact]
-        public void RemoveByIdAsync()
+        public void DeleteByIdAsync()
         {
-            _unitTest.RemoveByIdAsync();
+            _unitTest.DeleteByIdAsync();
         }
 
         [Fact]
-        public void RemoveByEntityAsync()
+        public void DeleteByEntityAsync()
         {
-            _unitTest.RemoveByEntityAsync();
+            _unitTest.DeleteByEntityAsync();
         }
 
         [Fact]
-        public void RemoveAllByIdsAsync()
+        public void DeleteAllByIdsAsync()
         {
-            _unitTest.RemoveAllByIdsAsync();
+            _unitTest.DeleteAllByIdsAsync();
         }
 
         [Fact]
-        public void RemoveAllByEntitiesAsync()
+        public void DeleteAllByEntitiesAsync()
         {
-            _unitTest.RemoveAllByEntitiesAsync();
+            _unitTest.DeleteAllByEntitiesAsync();
         }
 
         [Fact]
-        public void RemoveAllAsync()
+        public void DeleteAllAsync()
         {
-            _unitTest.RemoveAllAsync();
+            _unitTest.DeleteAllAsync();
         }
 
         [Fact]

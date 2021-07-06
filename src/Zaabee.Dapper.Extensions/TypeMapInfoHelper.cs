@@ -1,20 +1,16 @@
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Reflection;
 
 namespace Zaabee.Dapper.Extensions
 {
-    public static class TypeMapInfoHelper
+    internal static class TypeMapInfoHelper
     {
         private static readonly ConcurrentDictionary<Type, TypeMapInfo> TypePropertyCache = new();
 
         public static object GetIdValue<T>(T entity) => GetTypeMapInfo(typeof(T)).IdPropertyInfo.GetValue(entity);
-
-        public static object GetPropertyTableValue(object obj, PropertyInfo propertyInfo) => propertyInfo.GetValue(obj);
 
         internal static TypeMapInfo GetTypeMapInfo(Type type)
         {
@@ -24,7 +20,6 @@ namespace Zaabee.Dapper.Extensions
                 {
                     var typeMapInfo = new TypeMapInfo
                     {
-                        TypeInfo = type.GetTypeInfo(),
                         TableName =
                             Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ??
                             type.Name
@@ -35,45 +30,22 @@ namespace Zaabee.Dapper.Extensions
 
                     typeMapInfo.IdPropertyInfo = typeProperties.FirstOrDefault(property =>
                         Attribute.GetCustomAttributes(property).OfType<KeyAttribute>().Any() ||
-                        property.Name is "Id" or "ID" or "id" or "_id" || property.Name == $"{typeMapInfo.TableName}Id");
+                        property.Name is "Id" or "ID" or "id" or "_id" ||
+                        property.Name == $"{typeMapInfo.TableName}Id");
 
                     if (typeMapInfo.IdPropertyInfo is null)
                         throw new ArgumentException($"Can not find the id property in {nameof(type)}.");
 
                     typeMapInfo.IdColumnName =
                         Attribute.GetCustomAttributes(typeMapInfo.IdPropertyInfo).OfType<ColumnAttribute>()
-                            .FirstOrDefault()
-                            ?.Name ?? typeMapInfo.IdPropertyInfo.Name;
-                    
-                    typeMapInfo.ForeignKeyPropertyInfo = typeProperties.FirstOrDefault(property =>
-                        Attribute.GetCustomAttributes(property).OfType<ForeignKeyAttribute>().Any());
-                    if (typeMapInfo.ForeignKeyPropertyInfo is not null)
-                        typeMapInfo.ForeignKeyColumnName =
-                            Attribute.GetCustomAttributes(typeMapInfo.ForeignKeyPropertyInfo)
-                                .OfType<ForeignKeyAttribute>()
-                                .First().Name;
+                            .FirstOrDefault()?.Name
+                        ?? typeMapInfo.IdPropertyInfo.Name;
 
-                    foreach (var propertyInfo in typeProperties.Where(property =>
-                        property != typeMapInfo.IdPropertyInfo))
-                    {
-                        if (propertyInfo.PropertyType != typeof(string) &&
-                            typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
-                        {
-                            var genericType = propertyInfo.PropertyType.GenericTypeArguments.FirstOrDefault();
-                            if (genericType is null)
-                                throw new NotSupportedException(
-                                    $"{propertyInfo.PropertyType} generic type can only be single.");
-                            if (genericType == type)
-                                continue;
-                            typeMapInfo.PropertyTableDict.Add(propertyInfo, GetTypeMapInfo(genericType));
-                        }
-                        else
-                            typeMapInfo.PropertyColumnDict.Add(Attribute.GetCustomAttributes(propertyInfo)
-                                                                   .OfType<ColumnAttribute>().FirstOrDefault()?.Name ??
-                                                               Attribute.GetCustomAttributes(propertyInfo)
-                                                                   .OfType<ForeignKeyAttribute>().FirstOrDefault()?.Name??
-                                                               propertyInfo.Name, propertyInfo);
-                    }
+                    typeMapInfo.PropertyColumnDict = typeProperties
+                        .Where(property => property != typeMapInfo.IdPropertyInfo)
+                        .ToDictionary(k => Attribute.GetCustomAttributes(k)
+                                               .OfType<ColumnAttribute>().FirstOrDefault()?.Name
+                                           ?? k.Name, v => v);
 
                     return typeMapInfo;
                 }

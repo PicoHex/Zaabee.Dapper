@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Zaabee.Dapper.Extensions.Enums;
 
 namespace Zaabee.Dapper.Extensions.Adapters
@@ -111,35 +110,6 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return typeSql[criteriaType];
         }
 
-        public virtual string GetComplexSelectSql(Type type, CriteriaType criteriaType)
-        {
-            var typeSql = _selectSqlCache.GetOrAdd(type, _ =>
-            {
-                lock (type)
-                {
-                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                    var selectString = ComplexSelectStringParse(typeMapInfo);
-                    return new Dictionary<CriteriaType, string>
-                    {
-                        {
-                            CriteriaType.None,
-                            $"{selectString} "
-                        },
-                        {
-                            CriteriaType.SingleId,
-                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
-                        },
-                        {
-                            CriteriaType.MultiId,
-                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
-                        }
-                    };
-                }
-            });
-
-            return typeSql[criteriaType];
-        }
-
         protected virtual string FormatColumnName(string columnName) => $"'{columnName}'";
 
         protected virtual string SelectStringParse(TypeMapInfo typeMapInfo)
@@ -150,47 +120,15 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return $"{selectString}{fromString}";
         }
 
-        protected virtual string ComplexSelectStringParse(TypeMapInfo typeMapInfo)
-        {
-            return $"SELECT {GetComplexSelectFieldString(typeMapInfo)}{GetFromJoinString(typeMapInfo)}";
-        }
-
         protected virtual string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
         {
-            switch (criteriaType)
+            return criteriaType switch
             {
-                case CriteriaType.None:
-                    return string.Empty;
-                case CriteriaType.SingleId:
-                    return $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = @Id";
-                case CriteriaType.MultiId:
-                    return $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} IN @Ids";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(criteriaType), criteriaType, null);
-            }
-        }
-
-        protected virtual StringBuilder GetComplexSelectFieldString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
-        {
-            var fieldsString =
-                $"{typeMapInfo.TableName}.{typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{typeMapInfo.TableName}.{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
-            if (sb == null) sb = new StringBuilder(fieldsString);
-            else sb.Append($",{fieldsString}");
-            foreach (var pair in typeMapInfo.PropertyTableDict)
-                GetComplexSelectFieldString(pair.Value, sb);
-            return sb;
-        }
-
-        protected virtual StringBuilder GetFromJoinString(TypeMapInfo typeMapInfo, StringBuilder sb = null)
-        {
-            sb ??= new StringBuilder($"FROM {typeMapInfo.TableName} ");
-            foreach (var pair in typeMapInfo.PropertyTableDict)
-                sb.Append(
-                    $"LEFT JOIN {pair.Value.TableName} ON {typeMapInfo.TableName}.{typeMapInfo.IdPropertyInfo.Name} = {pair.Value.TableName}.{pair.Value.IdPropertyInfo.Name} ");
-
-            foreach (var pair in typeMapInfo.PropertyTableDict.Where(kv => kv.Value.PropertyTableDict.Any()))
-                GetFromJoinString(pair.Value, sb);
-            return sb;
+                CriteriaType.None => string.Empty,
+                CriteriaType.SingleId => $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} = @Id",
+                CriteriaType.MultiId => $"WHERE {typeMapInfo.TableName}.{typeMapInfo.IdColumnName} IN @Ids",
+                _ => throw new ArgumentOutOfRangeException(nameof(criteriaType), criteriaType, null)
+            };
         }
     }
 }
