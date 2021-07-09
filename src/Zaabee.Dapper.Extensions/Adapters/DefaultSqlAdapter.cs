@@ -30,7 +30,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
                     var propertyNames = new List<string> {typeMapInfo.IdPropertyInfo.Name};
                     propertyNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Value.Name));
 
-                    var intoString = string.Join(",", columnNames);
+                    var intoString = string.Join(",", columnNames.Select(FormatColumnName));
                     var valueString = string.Join(",", propertyNames.Select(propertyName => $"@{propertyName}"));
                     return
                         $"INSERT INTO {FormatTableName(typeMapInfo.TableName)} ({intoString}) VALUES ({valueString})";
@@ -75,7 +75,8 @@ namespace Zaabee.Dapper.Extensions.Adapters
                 {
                     var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
                     var setSql = string.Join(",",
-                        typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} = @{pair.Value.Name}"));
+                        typeMapInfo.PropertyColumnDict.Select(pair =>
+                            $"{FormatColumnName(pair.Key)} = @{pair.Value.Name}"));
                     return
                         $"UPDATE {FormatTableName(typeMapInfo.TableName)} SET {setSql} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}";
                 }
@@ -118,7 +119,7 @@ namespace Zaabee.Dapper.Extensions.Adapters
         protected virtual string SelectStringParse(TypeMapInfo typeMapInfo)
         {
             var selectString =
-                $"SELECT {typeMapInfo.IdColumnName} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{pair.Key} AS {FormatColumnName(pair.Value.Name)} "))}";
+                $"SELECT {FormatColumnName(typeMapInfo.IdColumnName)} AS {FormatColumnName(typeMapInfo.IdPropertyInfo.Name)}, {string.Join(",", typeMapInfo.PropertyColumnDict.Select(pair => $"{FormatColumnName(pair.Key)} AS {FormatColumnName(pair.Value.Name)} "))}";
             var fromString = $"FROM {FormatTableName(typeMapInfo.TableName)} ";
             return $"{selectString}{fromString}";
         }
@@ -128,8 +129,8 @@ namespace Zaabee.Dapper.Extensions.Adapters
             return criteriaType switch
             {
                 CriteriaType.None => string.Empty,
-                CriteriaType.SingleId => $"WHERE {typeMapInfo.IdColumnName} = @Id",
-                CriteriaType.MultiId => $"WHERE {typeMapInfo.IdColumnName} IN @Ids",
+                CriteriaType.SingleId => $"WHERE {FormatColumnName(typeMapInfo.IdColumnName)} = @Id",
+                CriteriaType.MultiId => $"WHERE {FormatColumnName(typeMapInfo.IdColumnName)} IN @Ids",
                 _ => throw new ArgumentOutOfRangeException(nameof(criteriaType), criteriaType, null)
             };
         }

@@ -4,8 +4,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>latest</LangVersion>
-        <PackageVersion>0.0.3-alpha</PackageVersion>
-        <Version>0.0.3-alpha</Version>
+        <PackageVersion>0.0.5-alpha</PackageVersion>
+        <Version>0.0.5-alpha</Version>
         <Authors>Mutuduxf</Authors>
         <Company>Mutuduxf</Company>
         <PackageTags>Zaabee Dapper Extensions</PackageTags>
@@ -15,8 +15,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dapper" Version="2.0.90" />
-      <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <PackageReference Include="Dapper" Version="2.0.90" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     </ItemGroup>
 
 </Project>
