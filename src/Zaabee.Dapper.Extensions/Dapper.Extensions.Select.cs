@@ -32,10 +32,9 @@ namespace Zaabee.Dapper.Extensions
         {
             var adapter = GetSqlAdapter(connection);
             var type = typeof(T);
-            var sql = adapter.GetSelectSql(type, CriteriaType.None);
-            var sb = new StringBuilder(sql.Trim());
+            var sb = new StringBuilder(adapter.GetSelectSql(type, CriteriaType.None).Trim());
             sb.Insert(6, $" TOP {count}").Append($" ORDER BY {TypeMapInfoHelper.GetTypeMapInfo(type).IdColumnName}");
-            return connection.Query<T>(sql, null, transaction, buffered, commandTimeout, commandType).ToList();
+            return connection.Query<T>(sb.ToString(), null, transaction, buffered, commandTimeout, commandType).ToList();
         }
 
         public static IList<T> GetAll<T>(this IDbConnection connection, IDbTransaction transaction = null,

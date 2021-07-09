@@ -21,8 +21,7 @@ namespace Zaabee.Dapper.Extensions
                     var typeMapInfo = new TypeMapInfo
                     {
                         TableName =
-                            Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ?? type.Name,
-                        TableAlias = "tbl0"
+                            Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ?? type.Name
                     };
 
                     var typeProperties = type.GetProperties().Where(p =>
