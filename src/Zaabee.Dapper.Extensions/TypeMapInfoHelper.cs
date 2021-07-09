@@ -21,8 +21,8 @@ namespace Zaabee.Dapper.Extensions
                     var typeMapInfo = new TypeMapInfo
                     {
                         TableName =
-                            Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ??
-                            type.Name
+                            Attribute.GetCustomAttributes(type).OfType<TableAttribute>().FirstOrDefault()?.Name ?? type.Name,
+                        TableAlias = "tbl0"
                     };
 
                     var typeProperties = type.GetProperties().Where(p =>
@@ -36,10 +36,7 @@ namespace Zaabee.Dapper.Extensions
                     if (typeMapInfo.IdPropertyInfo is null)
                         throw new ArgumentException($"Can not find the id property in {nameof(type)}.");
 
-                    typeMapInfo.IdColumnName =
-                        Attribute.GetCustomAttributes(typeMapInfo.IdPropertyInfo).OfType<ColumnAttribute>()
-                            .FirstOrDefault()?.Name
-                        ?? typeMapInfo.IdPropertyInfo.Name;
+                    typeMapInfo.IdColumnName = typeMapInfo.IdPropertyInfo.Name;
 
                     typeMapInfo.PropertyColumnDict = typeProperties
                         .Where(property => property != typeMapInfo.IdPropertyInfo)
