@@ -35,7 +35,9 @@ namespace Zaabee.Dapper.Extensions
                     if (typeMapInfo.IdPropertyInfo is null)
                         throw new ArgumentException($"Can not find the id property in {nameof(type)}.");
 
-                    typeMapInfo.IdColumnName = typeMapInfo.IdPropertyInfo.Name;
+                    typeMapInfo.IdColumnName = Attribute.GetCustomAttributes(typeMapInfo.IdPropertyInfo)
+                                                   .OfType<ColumnAttribute>().FirstOrDefault()?.Name
+                                               ?? typeMapInfo.IdPropertyInfo.Name;
 
                     typeMapInfo.PropertyColumnDict = typeProperties
                         .Where(property => property != typeMapInfo.IdPropertyInfo)

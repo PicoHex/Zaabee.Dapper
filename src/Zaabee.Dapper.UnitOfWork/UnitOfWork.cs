@@ -1,21 +1,17 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 
 namespace Zaabee.Dapper.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork
     {
-        public Guid Id { get; }
         public IDbConnection Connection { get; }
-        public IDbTransaction Transaction { get; private set; }
+        public IDbTransaction Transaction { get; }
 
         internal UnitOfWork(IDbConnection connection)
         {
-            Id = Guid.NewGuid();
             Connection = connection;
+            Transaction = Connection.BeginTransaction();
         }
-
-        public void Begin() => Transaction = Connection.BeginTransaction();
 
         public void Commit()
         {
@@ -28,16 +24,6 @@ namespace Zaabee.Dapper.UnitOfWork
                 Transaction.Rollback();
                 throw;
             }
-            finally
-            {
-                Transaction.Dispose();
-            }
-        }
-
-        public void Rollback()
-        {
-            Transaction.Rollback();
-            Transaction.Dispose();
         }
 
         public void Dispose()

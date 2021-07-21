@@ -356,16 +356,16 @@ namespace Zaabee.Dapper.Extensions.TestProject
                 Gender = m % 2 is 0 ? Gender.Male : Gender.Female,
                 Birthday = DateTime.Now,
                 CreateTime = DateTime.UtcNow,
-                Kids = new List<MySubPoco>
-                {
-                    new()
-                    {
-                        Id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
-                        MyPocoId = id,
-                        Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
-                        Remark = "This is a sub poco."
-                    }
-                }
+                // Kids = new List<MySubPoco>
+                // {
+                //     new()
+                //     {
+                //         Id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+                //         MyPocoId = id,
+                //         Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
+                //         Remark = "This is a sub poco."
+                //     }
+                // }
             };
         }
 
