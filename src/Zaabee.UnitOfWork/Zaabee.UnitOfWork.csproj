@@ -7,7 +7,7 @@
         <Version>2021.1.0</Version>
         <Authors>Mutuduxf</Authors>
         <Company>Mutuduxf</Company>
-        <PackageTags>Zaabee Dapper UOW unit of work</PackageTags>
+        <PackageTags>Zaabee UOW unit of work</PackageTags>
         <Description>Unit of work.</Description>
         <PackageProjectUrl>https://github.com/Mutuduxf/Zaabee.Dapper</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

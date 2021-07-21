@@ -6,7 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EFE8BE56
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions", "src\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj", "{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.UnitOfWork", "src\Zaabee.Dapper.UnitOfWork\Zaabee.Dapper.UnitOfWork.csproj", "{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.UnitOfWork", "src\Zaabee.UnitOfWork\Zaabee.UnitOfWork.csproj", "{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions.TestProject", "tests\Zaabee.Dapper.Extensions.TestProject\Zaabee.Dapper.Extensions.TestProject.csproj", "{49054DBB-5A34-4725-940C-77915D72EEC6}"
 EndProject

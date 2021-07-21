@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Zaabee.Dapper.UnitOfWork
+namespace Zaabee.UnitOfWork
 {
     public class UnitOfWork
     {
