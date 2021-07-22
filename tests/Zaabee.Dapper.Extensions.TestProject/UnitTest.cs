@@ -226,7 +226,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                result = await conn.DeleteAsync<MyPoco>(entity.Id);
+                result = await conn.DeleteByIdAsync<MyPoco>(entity.Id);
             }
 
             Assert.Equal(1, result);
@@ -239,7 +239,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 var entity = CreatePoco();
                 await conn.AddAsync(entity);
-                result = await conn.DeleteAsync(entity);
+                result = await conn.DeleteByEntityAsync(entity);
             }
 
             Assert.Equal(1, result);

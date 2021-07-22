@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -9,20 +10,27 @@ namespace Zaabee.Dapper.Extensions
 {
     public static partial class DapperExtensions
     {
-        public static Task<int> DeleteAsync<T>(this IDbConnection connection, T persistentObject,
+        public static Task<int> DeleteByEntityAsync<T>(this IDbConnection connection, T persistentObject,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            DeleteByEntityAsync(connection, persistentObject, typeof(T), transaction, commandTimeout, commandType);
+        
+        public static Task<int> DeleteByEntityAsync(this IDbConnection connection, object persistentObject, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var id = TypeMapInfoHelper.GetIdValue(persistentObject);
-            return DeleteAsync<T>(connection, id, transaction, commandTimeout, commandType);
+            return DeleteByIdAsync(connection, id, type, transaction, commandTimeout, commandType);
         }
 
-        public static Task<int> DeleteAsync<T>(this IDbConnection connection, object id,
+        public static Task<int> DeleteByIdAsync<T>(this IDbConnection connection, object id,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) =>
+            DeleteByIdAsync(connection, id, typeof(T), transaction, commandTimeout, commandType);
+
+        public static Task<int> DeleteByIdAsync(this IDbConnection connection, object id, Type type,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
-            return connection.ExecuteAsync(
-                adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
-                new {Id = id}, transaction, commandTimeout, commandType);
+            return connection.ExecuteAsync(adapter.GetDeleteSql(type, CriteriaType.SingleId), new {Id = id}, transaction,
+                commandTimeout, commandType);
         }
 
         public static Task<int> DeleteAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
