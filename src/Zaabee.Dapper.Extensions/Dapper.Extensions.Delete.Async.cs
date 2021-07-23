@@ -33,15 +33,15 @@ namespace Zaabee.Dapper.Extensions
                 commandTimeout, commandType);
         }
 
-        public static Task<int> DeleteAllAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
+        public static Task<int> DeleteByEntitiesAsync<T>(this IDbConnection connection, IList<T> persistentObjects,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);
-            return connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.SingleId),
+            return connection.ExecuteAsync(adapter.GetDeleteSql(typeof(T), CriteriaType.MultiId),
                 persistentObjects, transaction, commandTimeout, commandType);
         }
 
-        public static Task<int> DeleteAllAsync<T>(this IDbConnection connection, object ids,
+        public static Task<int> DeleteByIdsAsync<T>(this IDbConnection connection, object ids,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var adapter = GetSqlAdapter(connection);

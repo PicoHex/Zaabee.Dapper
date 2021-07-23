@@ -4,8 +4,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>latest</LangVersion>
-        <PackageVersion>0.0.8-alpha</PackageVersion>
-        <Version>0.0.8-alpha</Version>
+        <PackageVersion>0.0.9-alpha</PackageVersion>
+        <Version>0.0.9-alpha</Version>
         <Authors>Mutuduxf</Authors>
         <Company>Mutuduxf</Company>
         <PackageTags>Zaabee Dapper Extensions</PackageTags>

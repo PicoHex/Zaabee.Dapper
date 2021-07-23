@@ -253,7 +253,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                result = await conn.DeleteAllAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
+                result = await conn.DeleteByIdsAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
             }
 
             Assert.Equal(entities.Count, result);
@@ -267,7 +267,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
             {
                 entities = CreatePocos(10);
                 await conn.AddRangeAsync(entities);
-                result = await conn.DeleteAllAsync(entities);
+                result = await conn.DeleteByEntitiesAsync(entities);
             }
 
             Assert.Equal(entities.Count, result);
