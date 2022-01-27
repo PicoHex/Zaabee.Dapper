@@ -10,7 +10,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public MySqlTest()
         {
             _unitTest = new UnitTest(() => new MySqlConnection(
-                "Database=TestDB;Data Source=192.168.78.152;User Id=root;Password=123;CharSet=utf8;port=3306"));
+                "Database=TestDB;Data Source=192.168.78.160;User Id=root;Password=123;CharSet=utf8;port=3306"));
         }
 
         #region sync

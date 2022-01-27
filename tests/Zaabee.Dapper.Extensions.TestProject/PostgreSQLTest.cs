@@ -10,7 +10,7 @@ namespace Zaabee.Dapper.Extensions.TestProject
         public PostgreSQLTest()
         {
             _unitTest = new UnitTest(() => new NpgsqlConnection(
-                "Host=192.168.78.152;Username=postgres;Password=123qweasd,./;Database=postgres"));
+                "Host=192.168.78.160;Username=postgres;Password=123qweasd,./;Database=postgres"));
         }
 
         #region sync
