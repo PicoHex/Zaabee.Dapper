@@ -3,13 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>2021.1.0</PackageVersion>
-        <Version>2021.1.0</Version>
+        <PackageVersion>2021.2.0</PackageVersion>
+        <Version>2021.2.0</Version>
         <Authors>Mutuduxf</Authors>
         <Company>Mutuduxf</Company>
         <PackageTags>Zaabee UOW unit of work</PackageTags>
         <Description>Unit of work.</Description>
-        <PackageProjectUrl>https://github.com/Mutuduxf/Zaabee.Dapper</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/PicoHex/Zaabee.Dapper</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 

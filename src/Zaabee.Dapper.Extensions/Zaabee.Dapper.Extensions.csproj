@@ -4,18 +4,18 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>latest</LangVersion>
-        <PackageVersion>0.0.9-alpha</PackageVersion>
-        <Version>0.0.9-alpha</Version>
+        <PackageVersion>0.0.10-alpha</PackageVersion>
+        <Version>0.0.10-alpha</Version>
         <Authors>Mutuduxf</Authors>
         <Company>Mutuduxf</Company>
         <PackageTags>Zaabee Dapper Extensions</PackageTags>
         <Description>Extensions for Dapper.</Description>
-        <PackageProjectUrl>https://github.com/Mutuduxf/Zaabee.Dapper</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/PicoHex/Zaabee.Dapper</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.0.90" />
+        <PackageReference Include="Dapper" Version="2.0.123" />
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     </ItemGroup>
 
