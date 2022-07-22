@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using Xunit;
 
@@ -9,8 +10,9 @@ namespace Zaabee.Dapper.Extensions.TestProject
 
         public MariaDbTest()
         {
-            _unitTest = new UnitTest(() => new MySqlConnection(
-                "Database=TestDB;Data Source=192.168.78.160;User Id=root;Password=123qweasd,./;CharSet=utf8;port=3307"));
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            var connectionString = config.GetConnectionString("MariaDB");
+            _unitTest = new UnitTest(() => new MySqlConnection(config.GetConnectionString("MariaDB")));
         }
 
         #region sync

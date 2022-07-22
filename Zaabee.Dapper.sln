@@ -1,24 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32602.291
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D4C94BA2-121A-4F8A-B89E-F59217C77ECA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EFE8BE56-16A9-4B73-9B3D-FC7131F82A3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions", "src\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj", "{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zaabee.Dapper.Extensions", "src\Zaabee.Dapper.Extensions\Zaabee.Dapper.Extensions.csproj", "{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.UnitOfWork", "src\Zaabee.UnitOfWork\Zaabee.UnitOfWork.csproj", "{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zaabee.UnitOfWork", "src\Zaabee.UnitOfWork\Zaabee.UnitOfWork.csproj", "{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zaabee.Dapper.Extensions.TestProject", "tests\Zaabee.Dapper.Extensions.TestProject\Zaabee.Dapper.Extensions.TestProject.csproj", "{49054DBB-5A34-4725-940C-77915D72EEC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zaabee.Dapper.Extensions.TestProject", "tests\Zaabee.Dapper.Extensions.TestProject\Zaabee.Dapper.Extensions.TestProject.csproj", "{49054DBB-5A34-4725-940C-77915D72EEC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
-		{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
-		{49054DBB-5A34-4725-940C-77915D72EEC6} = {EFE8BE56-16A9-4B73-9B3D-FC7131F82A3A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -33,5 +31,16 @@ Global
 		{49054DBB-5A34-4725-940C-77915D72EEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49054DBB-5A34-4725-940C-77915D72EEC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49054DBB-5A34-4725-940C-77915D72EEC6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DB26062-2479-4EEA-A50F-08C3B6FE3F6A} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
+		{D0CF3CAB-3AEC-4754-A6E7-73FF3E9F715A} = {D4C94BA2-121A-4F8A-B89E-F59217C77ECA}
+		{49054DBB-5A34-4725-940C-77915D72EEC6} = {EFE8BE56-16A9-4B73-9B3D-FC7131F82A3A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8142E292-B281-4F16-98EC-4C3BA3A8F413}
 	EndGlobalSection
 EndGlobal
