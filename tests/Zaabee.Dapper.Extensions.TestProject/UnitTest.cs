@@ -1,377 +1,298 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using Newtonsoft.Json;
-using Xunit;
-using Zaabee.Dapper.Extensions.TestProject.POCOs;
-using Zaabee.NewtonsoftJson;
-using Zaabee.SequentialGuid;
+namespace Zaabee.Dapper.Extensions.TestProject;
 
-namespace Zaabee.Dapper.Extensions.TestProject
+public abstract class UnitTest
 {
-    public class UnitTest
+    protected readonly IConfigurationRoot Config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+    protected IDbConnection Conn { get; init; }
+
+    #region sync
+
+    [Fact]
+    public void Add()
     {
-        private readonly Func<IDbConnection> _connFunc;
+        var myPoco = CreatePoco();
+        var result = Conn.Add(myPoco);
 
-        public UnitTest(Func<IDbConnection> connFunc)
-        {
-            _connFunc = connFunc;
-        }
+        Assert.Equal(1, result);
+    }
 
-        #region sync
+    [Fact]
+    public void AddRange()
+    {
+        const int quantity = 10;
+        var myPocos = CreatePocos(quantity);
+        var result = Conn.AddRange<MyPoco>(myPocos);
 
-        public void Add()
-        {
-            var myPoco = CreatePoco();
-            int result;
-            using (var conn = _connFunc())
-            {
-                result = conn.Add(myPoco);
-            }
+        Assert.Equal(quantity, result);
+    }
 
-            Assert.Equal(1, result);
-        }
+    [Fact]
+    public void DeleteById()
+    {
+        var entity = CreatePoco();
+        Conn.Add(entity);
+        var result = Conn.DeleteById<MyPoco>(entity.Id);
 
-        public void AddRange()
-        {
-            const int quantity = 10;
-            var myPocos = CreatePocos(quantity);
-            int result;
-            using (var conn = _connFunc())
-            {
-                result = conn.AddRange<MyPoco>(myPocos);
-            }
+        Assert.Equal(1, result);
+    }
 
-            Assert.Equal(quantity, result);
-        }
+    [Fact]
+    public void DeleteByEntity()
+    {
+        var entity = CreatePoco();
+        Conn.Add(entity);
+        var result = Conn.DeleteByEntity(entity);
 
-        public void DeleteById()
-        {
-            int result;
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                result = conn.DeleteById<MyPoco>(entity.Id);
-            }
+        Assert.Equal(1, result);
+    }
 
-            Assert.Equal(1, result);
-        }
+    [Fact]
+    public void DeleteAllByIds()
+    {
+        var entities = CreatePocos(10);
+        Conn.AddRange<MyPoco>(entities);
+        var result = Conn.DeleteByIds<MyPoco>(entities.Select(entity => entity.Id).ToList());
 
-        public void DeleteByEntity()
-        {
-            int result;
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                result = conn.DeleteByEntity(entity);
-            }
+        Assert.Equal(entities.Count, result);
+    }
 
-            Assert.Equal(1, result);
-        }
+    [Fact]
+    public void DeleteAllByEntities()
+    {
+        var entities = CreatePocos(10);
+        Conn.AddRange<MyPoco>(entities);
+        var result = Conn.DeleteByEntities<MyPoco>(entities);
 
-        public void DeleteAllByIds()
-        {
-            int result;
-            List<MyPoco> entities;
-            using (var conn = _connFunc())
-            {
-                entities = CreatePocos(10);
-                conn.AddRange<MyPoco>(entities);
-                result = conn.DeleteByIds<MyPoco>(entities.Select(entity => entity.Id).ToList());
-            }
+        Assert.Equal(entities.Count, result);
+    }
 
-            Assert.Equal(entities.Count, result);
-        }
+    [Fact]
+    public void DeleteAll()
+    {
+        var quantity = Conn.GetAll<MyPoco>().Count;
+        var result = Conn.DeleteAll<MyPoco>();
 
-        public void DeleteAllByEntities()
-        {
-            int result;
-            List<MyPoco> entities;
-            using (var conn = _connFunc())
-            {
-                entities = CreatePocos(10);
-                conn.AddRange<MyPoco>(entities);
-                result = conn.DeleteByEntities<MyPoco>(entities);
-            }
+        Assert.Equal(quantity, result);
+    }
 
-            Assert.Equal(entities.Count, result);
-        }
-
-        public void DeleteAll()
-        {
-            int quantity, result;
-            using (var conn = _connFunc())
-            {
-                quantity = conn.GetAll<MyPoco>().Count();
-                result = conn.DeleteAll<MyPoco>();
-            }
-
-            Assert.Equal(quantity, result);
-        }
-
-        public void Update()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                entity.Name = "hahahahaha";
-                var modifyQuantity = conn.Update(entity);
-                Assert.Equal(1, modifyQuantity);
+    [Fact]
+    public void Update()
+    {
+        var entity = CreatePoco();
+        Conn.Add(entity);
+        entity.Name = "hahahahaha";
+        var modifyQuantity = Conn.Update(entity);
+        Assert.Equal(1, modifyQuantity);
 //                var result = conn.FirstOrDefault<MyPoco, MySubPoco, MyPoco>(entity.Id, (mypoco, mySubPoco) =>
 //                {
 //                    mypoco.Id = mySubPoco.MyPocoId;
 //                    return mypoco;
 //                });
-                var result = conn.FirstOrDefault<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
+        var result = Conn.FirstOrDefault<MyPoco>(entity.Id);
+        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        Assert.Equal(firstJson, secondJson);
+    }
 
-        public void UpdateAll()
+    [Fact]
+    public void UpdateAll()
+    {
+        var entities = CreatePocos(10);
+        Conn.AddRange<MyPoco>(entities);
+        entities.ForEach(entity => entity.Name = "hahahahaha");
+        var modifyQuantity = Conn.UpdateAll<MyPoco>(entities);
+        Assert.Equal(modifyQuantity, entities.Count);
+        var results = Conn.Get<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
+        Assert.Equal(
+            entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
+                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
+            results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
+                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }));
+    }
+
+    [Fact]
+    public void FirstOrDefault()
+    {
+        var entity = CreatePoco();
+        Conn.Add(entity);
+        var result = Conn.FirstOrDefault<MyPoco>(entity.Id);
+        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        Assert.Equal(firstJson, secondJson);
+    }
+
+    [Fact]
+    public void Query()
+    {
+        var entities = CreatePocos(10);
+        Conn.AddRange<MyPoco>(entities);
+        var results = Conn.Get<MyPoco>(entities.Select(e => e.Id).ToList());
+        Assert.Equal(
+            entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
+                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
+            results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
+                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }));
+    }
+
+    [Fact]
+    public void GetAll()
+    {
+        var entities = CreatePocos(10);
+        Conn.AddRange<MyPoco>(entities);
+        var results = Conn.GetAll<MyPoco>();
+        Assert.True(results.Count >= entities.Count);
+    }
+
+    #endregion
+
+    #region async
+
+    [Fact]
+    public async void AddAsync()
+    {
+        var myPoco = CreatePoco();
+        var result = await Conn.AddAsync(myPoco);
+
+        Assert.Equal(1, result);
+    }
+
+    [Fact]
+    public async void AddRangeAsync()
+    {
+        const int quantity = 10;
+        var myPocos = CreatePocos(quantity);
+        var result = await Conn.AddRangeAsync(myPocos);
+
+        Assert.Equal(quantity, result);
+    }
+
+    [Fact]
+    public async void DeleteByIdAsync()
+    {
+        var entity = CreatePoco();
+        await Conn.AddAsync(entity);
+        var result = await Conn.DeleteByIdAsync<MyPoco>(entity.Id);
+
+        Assert.Equal(1, result);
+    }
+
+    [Fact]
+    public async void DeleteByEntityAsync()
+    {
+        var entity = CreatePoco();
+        await Conn.AddAsync(entity);
+        var result = await Conn.DeleteByEntityAsync(entity);
+
+        Assert.Equal(1, result);
+    }
+
+    [Fact]
+    public async void DeleteAllByIdsAsync()
+    {
+        var entities = CreatePocos(10);
+        await Conn.AddRangeAsync(entities);
+        var result = await Conn.DeleteByIdsAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
+
+        Assert.Equal(entities.Count, result);
+    }
+
+    [Fact]
+    public async void DeleteAllByEntitiesAsync()
+    {
+        var entities = CreatePocos(10);
+        await Conn.AddRangeAsync(entities);
+        var result = await Conn.DeleteByEntitiesAsync(entities);
+
+        Assert.Equal(entities.Count, result);
+    }
+
+    [Fact]
+    public async void DeleteAllAsync()
+    {
+        var quantity = (await Conn.GetAllAsync<MyPoco>()).Count;
+        var result = await Conn.DeleteAllAsync<MyPoco>();
+
+        Assert.Equal(quantity, result);
+    }
+
+    [Fact]
+    public async void UpdateAsync()
+    {
+        var entity = CreatePoco();
+        await Conn.AddAsync(entity);
+        entity.Name = "hahahahaha";
+        var modifyQuantity = await Conn.UpdateAsync(entity);
+        Assert.Equal(1, modifyQuantity);
+        var result = await Conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
+        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        Assert.Equal(firstJson, secondJson);
+    }
+
+    [Fact]
+    public async void UpdateAllAsync()
+    {
+        var entities = CreatePocos(10);
+        await Conn.AddRangeAsync(entities);
+        entities.ForEach(entity => entity.Name = "hahahahaha");
+        var modifyQuantity = await Conn.UpdateAllAsync(entities);
+        Assert.Equal(modifyQuantity, entities.Count);
+        var results = await Conn.GetAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
+        Assert.Equal(
+            entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
+                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
+            results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
+                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }));
+    }
+
+    [Fact]
+    public async void FirstOrDefaultAsync()
+    {
+        var entity = CreatePoco();
+        await Conn.AddAsync(entity);
+        var result = await Conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
+        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        Assert.Equal(firstJson, secondJson);
+    }
+
+    [Fact]
+    public async void AllAsync()
+    {
+        var entities = CreatePocos(10);
+        await Conn.AddRangeAsync(entities);
+        var results = await Conn.GetAllAsync<MyPoco>();
+        Assert.True(results.Count >= entities.Count);
+    }
+
+    #endregion
+
+    private static MyPoco CreatePoco(SequentialGuidType? guidType = null)
+    {
+        var m = new Random().Next();
+        var id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value);
+        return new MyPoco
         {
-            using (var conn = _connFunc())
-            {
-                var entities = CreatePocos(10);
-                conn.AddRange<MyPoco>(entities);
-                entities.ForEach(entity => entity.Name = "hahahahaha");
-                var modifyQuantity = conn.UpdateAll<MyPoco>(entities);
-                Assert.Equal(modifyQuantity, entities.Count);
-                var results = conn.Get<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
-                Assert.Equal(
-                    entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
-                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}),
-                    results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
-                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}));
-            }
-        }
+            Id = id,
+            Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
+            Gender = m % 2 is 0 ? Gender.Male : Gender.Female,
+            Birthday = DateTime.Now,
+            CreateTime = DateTime.UtcNow,
+            // Kids = new List<MySubPoco>
+            // {
+            //     new()
+            //     {
+            //         Id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
+            //         MyPocoId = id,
+            //         Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
+            //         Remark = "This is a sub poco."
+            //     }
+            // }
+        };
+    }
 
-        public void FirstOrDefault()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                conn.Add(entity);
-                var result = conn.FirstOrDefault<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public void Query()
-        {
-            using (var conn = _connFunc())
-            {
-                var entities = CreatePocos(10);
-                conn.AddRange<MyPoco>(entities);
-                var results = conn.Get<MyPoco>(entities.Select(e => e.Id).ToList());
-                Assert.Equal(
-                    entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
-                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}),
-                    results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
-                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}));
-            }
-        }
-
-        public void GetAll()
-        {
-            using (var conn = _connFunc())
-            {
-                var entities = CreatePocos(10);
-                conn.AddRange<MyPoco>(entities);
-                var results = conn.GetAll<MyPoco>();
-                Assert.True(results.Count() >= entities.Count);
-            }
-        }
-
-        #endregion
-
-        #region async
-
-        public async void AddAsync()
-        {
-            var myPoco = CreatePoco();
-            int result;
-            using (var conn = _connFunc())
-            {
-                result = await conn.AddAsync(myPoco);
-            }
-
-            Assert.Equal(1, result);
-        }
-
-        public async void AddRangeAsync()
-        {
-            const int quantity = 10;
-            var myPocos = CreatePocos(quantity);
-            int result;
-            using (var conn = _connFunc())
-            {
-                result = await conn.AddRangeAsync(myPocos);
-            }
-
-            Assert.Equal(quantity, result);
-        }
-
-        public async void DeleteByIdAsync()
-        {
-            int result;
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                result = await conn.DeleteByIdAsync<MyPoco>(entity.Id);
-            }
-
-            Assert.Equal(1, result);
-        }
-
-        public async void DeleteByEntityAsync()
-        {
-            int result;
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                result = await conn.DeleteByEntityAsync(entity);
-            }
-
-            Assert.Equal(1, result);
-        }
-
-        public async void DeleteAllByIdsAsync()
-        {
-            int result;
-            List<MyPoco> entities;
-            using (var conn = _connFunc())
-            {
-                entities = CreatePocos(10);
-                await conn.AddRangeAsync(entities);
-                result = await conn.DeleteByIdsAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
-            }
-
-            Assert.Equal(entities.Count, result);
-        }
-
-        public async void DeleteAllByEntitiesAsync()
-        {
-            int result;
-            List<MyPoco> entities;
-            using (var conn = _connFunc())
-            {
-                entities = CreatePocos(10);
-                await conn.AddRangeAsync(entities);
-                result = await conn.DeleteByEntitiesAsync(entities);
-            }
-
-            Assert.Equal(entities.Count, result);
-        }
-
-        public async void DeleteAllAsync()
-        {
-            int quantity, result;
-            using (var conn = _connFunc())
-            {
-                quantity = (await conn.GetAllAsync<MyPoco>()).Count();
-                result = await conn.DeleteAllAsync<MyPoco>();
-            }
-
-            Assert.Equal(quantity, result);
-        }
-
-        public async void UpdateAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                entity.Name = "hahahahaha";
-                var modifyQuantity = await conn.UpdateAsync(entity);
-                Assert.Equal(1, modifyQuantity);
-                var result = await conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public async void UpdateAllAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entities = CreatePocos(10);
-                await conn.AddRangeAsync(entities);
-                entities.ForEach(entity => entity.Name = "hahahahaha");
-                var modifyQuantity = await conn.UpdateAllAsync(entities);
-                Assert.Equal(modifyQuantity, entities.Count);
-                var results = await conn.GetAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
-                Assert.Equal(
-                    entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
-                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}),
-                    results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
-                        {DateFormatString = "yyyy/MM/dd HH:mm:ss"}));
-            }
-        }
-
-        public async void FirstOrDefaultAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entity = CreatePoco();
-                await conn.AddAsync(entity);
-                var result = await conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
-                var firstJson = entity.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                var secondJson = result.ToJson(new JsonSerializerSettings {DateFormatString = "yyyy/MM/dd HH:mm:ss"});
-                Assert.Equal(firstJson, secondJson);
-            }
-        }
-
-        public async void AllAsync()
-        {
-            using (var conn = _connFunc())
-            {
-                var entities = CreatePocos(10);
-                await conn.AddRangeAsync(entities);
-                var results = await conn.GetAllAsync<MyPoco>();
-                Assert.True(results.Count() >= entities.Count);
-            }
-        }
-
-        #endregion
-
-        private static MyPoco CreatePoco(SequentialGuidType? guidType = null)
-        {
-            var m = new Random().Next();
-            var id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value);
-            return new MyPoco
-            {
-                Id = id,
-                Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
-                Gender = m % 2 is 0 ? Gender.Male : Gender.Female,
-                Birthday = DateTime.Now,
-                CreateTime = DateTime.UtcNow,
-                // Kids = new List<MySubPoco>
-                // {
-                //     new()
-                //     {
-                //         Id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value),
-                //         MyPocoId = id,
-                //         Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
-                //         Remark = "This is a sub poco."
-                //     }
-                // }
-            };
-        }
-
-        private static List<MyPoco> CreatePocos(int quantity, SequentialGuidType? guidType = null)
-        {
-            return Enumerable.Range(0, quantity).Select(_ => CreatePoco(guidType)).ToList();
-        }
+    private static List<MyPoco> CreatePocos(int quantity, SequentialGuidType? guidType = null)
+    {
+        return Enumerable.Range(0, quantity).Select(_ => CreatePoco(guidType)).ToList();
     }
 }
