@@ -1,45 +1,42 @@
-﻿using System.Data;
+﻿namespace Zaabee.UnitOfWork;
 
-namespace Zaabee.UnitOfWork
+public class UnitOfWork
 {
-    public class UnitOfWork
+    public IDbConnection? Connection { get; private set; }
+    public IDbTransaction? Transaction { get; private set; }
+
+    internal UnitOfWork(IDbConnection connection)
     {
-        public IDbConnection Connection { get; private set; }
-        public IDbTransaction Transaction { get; private set; }
+        Connection = connection;
+        Transaction = Connection.BeginTransaction();
+    }
 
-        internal UnitOfWork(IDbConnection connection)
+    public void BeginTransaction() => Transaction = Connection?.BeginTransaction();
+
+    public void BeginTransaction(IsolationLevel il) => Transaction = Connection?.BeginTransaction(il);
+
+    public void UseTransaction(IDbTransaction transaction)
+    {
+        Transaction = transaction;
+        Connection = transaction.Connection;
+    }
+
+    public void Commit()
+    {
+        try
         {
-            Connection = connection;
-            Transaction = Connection.BeginTransaction();
+            Transaction?.Commit();
         }
-
-        public void BeginTransaction() => Transaction = Connection.BeginTransaction();
-
-        public void BeginTransaction(IsolationLevel il) => Transaction = Connection.BeginTransaction(il);
-
-        public void UseTransaction(IDbTransaction transaction)
+        catch
         {
-            Transaction = transaction;
-            Connection = transaction.Connection;
+            Transaction?.Rollback();
+            throw;
         }
+    }
 
-        public void Commit()
-        {
-            try
-            {
-                Transaction.Commit();
-            }
-            catch
-            {
-                Transaction.Rollback();
-                throw;
-            }
-        }
-
-        public void Dispose()
-        {
-            Transaction?.Dispose();
-            Connection?.Dispose();
-        }
+    public void Dispose()
+    {
+        Transaction?.Dispose();
+        Connection?.Dispose();
     }
 }

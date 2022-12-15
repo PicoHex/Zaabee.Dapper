@@ -1,13 +1,10 @@
-using System.Collections.Generic;
-using System.Reflection;
+namespace Zaabee.Dapper.Extensions;
 
-namespace Zaabee.Dapper.Extensions
+internal class TypeMapInfo
 {
-    internal class TypeMapInfo
-    {
-        public string TableName { get; set; }
-        public PropertyInfo IdPropertyInfo { get; set; }
-        public string IdColumnName { get; set; }
-        public Dictionary<string, PropertyInfo> PropertyColumnDict { get; set; }
-    }
+    public string TableName { get; set; } = string.Empty;
+    public PropertyInfo? IdPropertyInfo { get; set; }
+    public string IdColumnName { get; set; } = string.Empty;
+
+    public Dictionary<string, PropertyInfo> PropertyColumnDict { get; set; } = new();
 }

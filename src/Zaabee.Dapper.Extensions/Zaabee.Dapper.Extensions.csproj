@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>latest</LangVersion>
-        <PackageVersion>0.0.10-alpha</PackageVersion>
-        <Version>0.0.10-alpha</Version>
+        <PackageVersion>0.0.12-alpha</PackageVersion>
+        <Version>0.0.12-alpha</Version>
         <Authors>Mutuduxf</Authors>
         <Company>Mutuduxf</Company>
         <PackageTags>Zaabee Dapper Extensions</PackageTags>
         <Description>Extensions for Dapper.</Description>
         <PackageProjectUrl>https://github.com/PicoHex/Zaabee.Dapper</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

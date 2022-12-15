@@ -1,9 +1,8 @@
-namespace Zaabee.Dapper.Extensions.Enums
+namespace Zaabee.Dapper.Extensions.Enums;
+
+internal enum CriteriaType
 {
-    internal enum CriteriaType
-    {
-        None,
-        SingleId,
-        MultiId
-    }
+    None,
+    SingleId,
+    MultiId
 }

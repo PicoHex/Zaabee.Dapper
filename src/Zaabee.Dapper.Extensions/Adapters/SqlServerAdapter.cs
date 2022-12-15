@@ -1,7 +1,6 @@
-namespace Zaabee.Dapper.Extensions.Adapters
+namespace Zaabee.Dapper.Extensions.Adapters;
+
+internal class SqlServerAdapter : DefaultSqlAdapter
 {
-    internal class SqlServerAdapter : DefaultSqlAdapter
-    {
-        protected override string FormatColumnName(string columnName) => $"[{columnName}]";
-    }
+    protected override string FormatColumnName(string columnName) => $"[{columnName}]";
 }
