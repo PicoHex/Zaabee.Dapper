@@ -3,7 +3,7 @@ namespace Zaabee.Dapper.Extensions.TestProject;
 public abstract class UnitTest
 {
     protected readonly IConfigurationRoot Config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-    protected IDbConnection Conn { get; init; }
+    protected IDbConnection Conn { get; set; }
 
     #region sync
 
