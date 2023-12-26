@@ -2,7 +2,9 @@ namespace Zaabee.Dapper.Extensions.TestProject;
 
 public abstract class UnitTest
 {
-    protected readonly IConfigurationRoot Config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+    protected readonly IConfigurationRoot Config = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .Build();
     protected IDbConnection Conn { get; set; }
 
     #region sync
@@ -83,14 +85,18 @@ public abstract class UnitTest
         entity.Name = "hahahahaha";
         var modifyQuantity = Conn.Update(entity);
         Assert.Equal(1, modifyQuantity);
-//                var result = conn.FirstOrDefault<MyPoco, MySubPoco, MyPoco>(entity.Id, (mypoco, mySubPoco) =>
-//                {
-//                    mypoco.Id = mySubPoco.MyPocoId;
-//                    return mypoco;
-//                });
+        //                var result = conn.FirstOrDefault<MyPoco, MySubPoco, MyPoco>(entity.Id, (mypoco, mySubPoco) =>
+        //                {
+        //                    mypoco.Id = mySubPoco.MyPocoId;
+        //                    return mypoco;
+        //                });
         var result = Conn.FirstOrDefault<MyPoco>(entity.Id);
-        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
-        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var firstJson = entity.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
+        var secondJson = result.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
         Assert.Equal(firstJson, secondJson);
     }
 
@@ -104,10 +110,13 @@ public abstract class UnitTest
         Assert.Equal(modifyQuantity, entities.Count);
         var results = Conn.Get<MyPoco>(entities.Select(entity => entity.Id).ToList()).ToList();
         Assert.Equal(
-            entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
-                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
-            results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
-                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }));
+            entities
+                .OrderBy(e => e.Id)
+                .ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
+            results
+                .OrderBy(r => r.Id)
+                .ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" })
+        );
     }
 
     [Fact]
@@ -116,8 +125,12 @@ public abstract class UnitTest
         var entity = CreatePoco();
         Conn.Add(entity);
         var result = Conn.FirstOrDefault<MyPoco>(entity.Id);
-        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
-        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var firstJson = entity.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
+        var secondJson = result.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
         Assert.Equal(firstJson, secondJson);
     }
 
@@ -128,10 +141,13 @@ public abstract class UnitTest
         Conn.AddRange<MyPoco>(entities);
         var results = Conn.Get<MyPoco>(entities.Select(e => e.Id).ToList());
         Assert.Equal(
-            entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
-                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
-            results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
-                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }));
+            entities
+                .OrderBy(e => e.Id)
+                .ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
+            results
+                .OrderBy(r => r.Id)
+                .ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" })
+        );
     }
 
     [Fact]
@@ -191,7 +207,9 @@ public abstract class UnitTest
     {
         var entities = CreatePocos(10);
         await Conn.AddRangeAsync(entities);
-        var result = await Conn.DeleteByIdsAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
+        var result = await Conn.DeleteByIdsAsync<MyPoco>(
+            entities.Select(entity => entity.Id).ToList()
+        );
 
         Assert.Equal(entities.Count, result);
     }
@@ -224,8 +242,12 @@ public abstract class UnitTest
         var modifyQuantity = await Conn.UpdateAsync(entity);
         Assert.Equal(1, modifyQuantity);
         var result = await Conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
-        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
-        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var firstJson = entity.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
+        var secondJson = result.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
         Assert.Equal(firstJson, secondJson);
     }
 
@@ -239,10 +261,13 @@ public abstract class UnitTest
         Assert.Equal(modifyQuantity, entities.Count);
         var results = await Conn.GetAsync<MyPoco>(entities.Select(entity => entity.Id).ToList());
         Assert.Equal(
-            entities.OrderBy(e => e.Id).ToJson(new JsonSerializerSettings
-                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
-            results.OrderBy(r => r.Id).ToJson(new JsonSerializerSettings
-                { DateFormatString = "yyyy/MM/dd HH:mm:ss" }));
+            entities
+                .OrderBy(e => e.Id)
+                .ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }),
+            results
+                .OrderBy(r => r.Id)
+                .ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" })
+        );
     }
 
     [Fact]
@@ -251,8 +276,12 @@ public abstract class UnitTest
         var entity = CreatePoco();
         await Conn.AddAsync(entity);
         var result = await Conn.FirstOrDefaultAsync<MyPoco>(entity.Id);
-        var firstJson = entity.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
-        var secondJson = result.ToJson(new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" });
+        var firstJson = entity.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
+        var secondJson = result.ToJson(
+            new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd HH:mm:ss" }
+        );
         Assert.Equal(firstJson, secondJson);
     }
 
@@ -270,11 +299,17 @@ public abstract class UnitTest
     private static MyPoco CreatePoco(SequentialGuidType? guidType = null)
     {
         var m = new Random().Next();
-        var id = guidType is null ? Guid.NewGuid() : SequentialGuidHelper.GenerateComb(guidType.Value);
+        var id = guidType is null
+            ? Guid.NewGuid()
+            : SequentialGuidHelper.GenerateComb(guidType.Value);
         return new MyPoco
         {
             Id = id,
-            Name = m % 3 is 0 ? "apple" : m % 2 is 0 ? "banana" : "pear",
+            Name = m % 3 is 0
+                ? "apple"
+                : m % 2 is 0
+                    ? "banana"
+                    : "pear",
             Gender = m % 2 is 0 ? Gender.Male : Gender.Female,
             Birthday = DateTime.Now,
             CreateTime = DateTime.UtcNow,

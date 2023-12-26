@@ -13,7 +13,8 @@ public class UnitOfWork
 
     public void BeginTransaction() => Transaction = Connection?.BeginTransaction();
 
-    public void BeginTransaction(IsolationLevel il) => Transaction = Connection?.BeginTransaction(il);
+    public void BeginTransaction(IsolationLevel il) =>
+        Transaction = Connection?.BeginTransaction(il);
 
     public void UseTransaction(IDbTransaction transaction)
     {

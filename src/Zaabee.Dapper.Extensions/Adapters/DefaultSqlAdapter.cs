@@ -4,104 +4,118 @@ internal class DefaultSqlAdapter : ISqlAdapter
 {
     private readonly ConcurrentDictionary<Type, string> _insertSqlCache = new();
 
-    private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _deleteSqlCache = new();
+    private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _deleteSqlCache =
+        new();
 
     private readonly ConcurrentDictionary<Type, string> _updateSqlDict = new();
 
-    private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _selectSqlCache = new();
+    private readonly ConcurrentDictionary<Type, Dictionary<CriteriaType, string>> _selectSqlCache =
+        new();
 
     public virtual string GetInsertSql(Type type)
     {
-        return _insertSqlCache.GetOrAdd(type, _ =>
-        {
-            lock (type)
+        return _insertSqlCache.GetOrAdd(
+            type,
+            _ =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                lock (type)
+                {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
 
-                var columnNames = new List<string> {typeMapInfo.IdColumnName};
-                columnNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Key));
+                    var columnNames = new List<string> { typeMapInfo.IdColumnName };
+                    columnNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Key));
 
-                var propertyNames = new List<string> {typeMapInfo.IdPropertyInfo.Name};
-                propertyNames.AddRange(typeMapInfo.PropertyColumnDict.Select(pair => pair.Value.Name));
+                    var propertyNames = new List<string> { typeMapInfo.IdPropertyInfo.Name };
+                    propertyNames.AddRange(
+                        typeMapInfo.PropertyColumnDict.Select(pair => pair.Value.Name)
+                    );
 
-                var intoString = string.Join(",", columnNames.Select(FormatColumnName));
-                var valueString = string.Join(",", propertyNames.Select(propertyName => $"@{propertyName}"));
-                return
-                    $"INSERT INTO {FormatTableName(typeMapInfo.TableName)} ({intoString}) VALUES ({valueString})";
+                    var intoString = string.Join(",", columnNames.Select(FormatColumnName));
+                    var valueString = string.Join(
+                        ",",
+                        propertyNames.Select(propertyName => $"@{propertyName}")
+                    );
+                    return $"INSERT INTO {FormatTableName(typeMapInfo.TableName)} ({intoString}) VALUES ({valueString})";
+                }
             }
-        });
+        );
     }
 
     public virtual string GetDeleteSql(Type type, CriteriaType conditionType)
     {
-        var sqls = _deleteSqlCache.GetOrAdd(type, _ =>
-        {
-            lock (type)
+        var sqls = _deleteSqlCache.GetOrAdd(
+            type,
+            _ =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                var fromString = $"DELETE FROM {FormatTableName(typeMapInfo.TableName)}";
-                return new Dictionary<CriteriaType, string>
+                lock (type)
                 {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var fromString = $"DELETE FROM {FormatTableName(typeMapInfo.TableName)}";
+                    return new Dictionary<CriteriaType, string>
                     {
-                        CriteriaType.None,
-                        $"{fromString}"
-                    },
-                    {
-                        CriteriaType.SingleId,
-                        $"{fromString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
-                    },
-                    {
-                        CriteriaType.MultiId,
-                        $"{fromString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
-                    }
-                };
+                        { CriteriaType.None, $"{fromString}" },
+                        {
+                            CriteriaType.SingleId,
+                            $"{fromString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                        },
+                        {
+                            CriteriaType.MultiId,
+                            $"{fromString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                        }
+                    };
+                }
             }
-        });
+        );
 
         return sqls[conditionType];
     }
 
     public virtual string GetUpdateSql(Type type)
     {
-        return _updateSqlDict.GetOrAdd(type, _ =>
-        {
-            lock (type)
+        return _updateSqlDict.GetOrAdd(
+            type,
+            _ =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                var setSql = string.Join(",",
-                    typeMapInfo.PropertyColumnDict.Select(pair =>
-                        $"{FormatColumnName(pair.Key)} = @{pair.Value.Name}"));
-                return
-                    $"UPDATE {FormatTableName(typeMapInfo.TableName)} SET {setSql} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}";
+                lock (type)
+                {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var setSql = string.Join(
+                        ",",
+                        typeMapInfo
+                            .PropertyColumnDict
+                            .Select(pair => $"{FormatColumnName(pair.Key)} = @{pair.Value.Name}")
+                    );
+                    return $"UPDATE {FormatTableName(typeMapInfo.TableName)} SET {setSql} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}";
+                }
             }
-        });
+        );
     }
 
     public virtual string GetSelectSql(Type type, CriteriaType criteriaType)
     {
-        var typeSql = _selectSqlCache.GetOrAdd(type, _ =>
-        {
-            lock (type)
+        var typeSql = _selectSqlCache.GetOrAdd(
+            type,
+            _ =>
             {
-                var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
-                var selectString = SelectStringParse(typeMapInfo);
-                return new Dictionary<CriteriaType, string>
+                lock (type)
                 {
+                    var typeMapInfo = TypeMapInfoHelper.GetTypeMapInfo(type);
+                    var selectString = SelectStringParse(typeMapInfo);
+                    return new Dictionary<CriteriaType, string>
                     {
-                        CriteriaType.None,
-                        $"{selectString} "
-                    },
-                    {
-                        CriteriaType.SingleId,
-                        $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
-                    },
-                    {
-                        CriteriaType.MultiId,
-                        $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
-                    }
-                };
+                        { CriteriaType.None, $"{selectString} " },
+                        {
+                            CriteriaType.SingleId,
+                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.SingleId)}"
+                        },
+                        {
+                            CriteriaType.MultiId,
+                            $"{selectString} {CriteriaTypeStringParse(typeMapInfo, CriteriaType.MultiId)}"
+                        }
+                    };
+                }
             }
-        });
+        );
 
         return typeSql[criteriaType];
     }
@@ -118,7 +132,10 @@ internal class DefaultSqlAdapter : ISqlAdapter
         return $"{selectString}{fromString}";
     }
 
-    protected virtual string CriteriaTypeStringParse(TypeMapInfo typeMapInfo, CriteriaType criteriaType)
+    protected virtual string CriteriaTypeStringParse(
+        TypeMapInfo typeMapInfo,
+        CriteriaType criteriaType
+    )
     {
         return criteriaType switch
         {
